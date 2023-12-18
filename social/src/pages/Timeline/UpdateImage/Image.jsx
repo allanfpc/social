@@ -14,9 +14,7 @@ const ImageContainer = ({image, type, token, onImageChange, fileUpload}) => {
             path: `user/update?type=${type}`,
             options: {
               method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${token}`
-              },
+              headers: {},
               body: formData
             }
           })

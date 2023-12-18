@@ -16,7 +16,6 @@ import authValidation from "../middlewares/authValidation.js";
 import uploadFile from "../middlewares/uploadFile.js";
 
 const router = express.Router();
-
 router.use(express.json({ strict: true, type: "application/json" }));
 
 router

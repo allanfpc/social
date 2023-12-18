@@ -30,10 +30,7 @@ export default function route() {
 		  errorElement: <ErrorFallback />,
 		  loader: async ({ params }) => {
 			  const response = await fetch(`${import.meta.env.VITE_SERVER_BASE_URL}/posts/${params.post_id}`, {
-				  method: 'GET',
-				  headers: {
-					authorization: token ? `Bearer ${token}` : undefined
-				  }
+				  method: 'GET',				  
 			  });
 			  console.log(response)
 			  if (!response.ok) {
@@ -52,8 +49,7 @@ export default function route() {
 			errorElement: <ErrorFallback />,
 			loader: async ({params}) => {				
 				const response = await fetch(`${import.meta.env.VITE_SERVER_BASE_URL}/users?username=${params.nickname}`, {
-					method: 'GET',
-					authorization: token ? `Bearer ${token}` : undefined
+					method: 'GET',					
 				});
 
 				if (!response.ok) {

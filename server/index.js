@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import authRoute from "./routes/auth.js";
@@ -8,10 +9,9 @@ import friendsRoute from "./routes/friend.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
 const app = express();
+app.use(cookieParser());
 
 const importedRoutes = [authRoute, userRoute, postsRoute, friendsRoute];
-
-console.log(importedRoutes);
 
 const routes = [];
 

@@ -37,10 +37,6 @@ const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTot
                 path: `posts/${id}/likes`,
                 options: {
                     method: isLiked ? 'PUT' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        authorization: `Bearer ${token}`
-                    }
                 }
             });
             console.log(response);

@@ -15,10 +15,10 @@ const Chat = () => {
   const [friends] = useQuery({
     path: 'friends',
     options: {
-      headers: { 
-        'Content-Type': 'application/json',                           
-        authorization: token ? `Bearer ${token}` : undefined
-      }
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: "include"
     }
   });
 

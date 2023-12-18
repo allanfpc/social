@@ -22,13 +22,7 @@ const Home = () => {
   const [loading, setLoading] = useState(null);
 
   const [posts, setPosts] = useQuery({
-    path: 'posts',
-    options: {
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: token ? `Bearer ${token}` : undefined
-      }
-    },
+    path: 'posts',    
     setLoading
   });
   console.log('posts: ', posts)
@@ -153,10 +147,8 @@ const Postbox = ({posts, setPosts, token}) => {
     const response =  await fetchAction({
       path: 'posts',
       options: {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${token}`
-        },
+        method: "POST",   
+        headers: {},
         body: formData
       }
     })

@@ -12,16 +12,11 @@ import { ApiError } from "../errors/error.js";
 
 const router = express.Router();
 
-// router.use(cors({
-//     origin: "http://localhost:5173",
-//     credentials: true,
-// }))
-
 router.use(express.json({ strict: true, type: "application/json" }));
 
 router.get("/auth/user", async (req, res, next) => {
 	try {
-		const token = req.headers?.authorization?.split(" ")[1];
+		const token = req.cookies.token;
 
 		if (token) {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -31,7 +26,7 @@ router.get("/auth/user", async (req, res, next) => {
 			}
 
 			const user = await getUserBy({ id: decoded.user.id });
-			console.log("user: ", user);
+
 			if (!user) {
 				throw new ApiError(
 					"INTERNAL_ERROR",
@@ -54,7 +49,6 @@ router.get("/auth/user", async (req, res, next) => {
 			res.status(200).json({ guest: true });
 		}
 	} catch (err) {
-		console.log("err: ", err);
 		next(err);
 	}
 });

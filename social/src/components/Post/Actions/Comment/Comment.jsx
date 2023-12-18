@@ -18,14 +18,7 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
   const [loading,setLoading] = useState(true);
   console.log('id: ', id);
   const [post] =  useQuery({
-    path: `posts/${id}`,    
-    options: {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`
-      }
-    }, 
+    path: `posts/${id}`,
     setLoading
   })
 
@@ -51,10 +44,6 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
       path: `posts/${id}/comments`,
       options: {
         method:  'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({comment: message})
       }
     });

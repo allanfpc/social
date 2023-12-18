@@ -3,15 +3,21 @@ import { useErrorStatus } from "../../contexts/ErrorContext";
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL;
 
-export function useQuery({path, options, setLoading}) {
-    
+export function useQuery({path, options = {}, setLoading}) {
     const { setErrorStatusCode } = useErrorStatus();
     const [data, setData] = useState([]);
 
+    const headers = options.headers == {} || {
+        "Content-Type": "application/json",
+        ...options.headers
+    };
+
     useEffect(() => {
-        fetch(`${SERVER_BASE_URL}/${path}`, {
-            method: options.method || "GET",            
-            ...options
+        fetch(`${SERVER_BASE_URL}/${path}`, {    
+            method: options.method || "GET",
+            headers: headers,
+            credentials: "include",
+            ...options,
         })
           .then(response => {
             console.log('respon: ', response);
@@ -40,28 +46,30 @@ export function useQuery({path, options, setLoading}) {
         
       }, [path]);
 
-      console.log('daAta: ', data);
     return [data, setData];
     
 }
 
-export async function fetchAction({path, options}) {    
-    console.log(path);
-    console.log(options);
+export async function fetchAction({path, options = {}}) {
 
-    const response = await fetch(`${SERVER_BASE_URL}/${path}`, {
+    const headers = options.headers == {} || {
+        "Content-Type": "application/json",
+        ...options.headers
+    };
+
+    const response = await fetch(`${SERVER_BASE_URL}/${path}`, {        
         method: options.method || "GET",
+        headers: headers,
+        credentials: "include",
         ...options
     })
-    console.log(response);
-    const code = response.status;
 
     if(code === 204) {
         return {data: null};
     }
 
     const data = await response.json();    
-    console.log('data: ', data);
+
     if(!response.ok) {        
         const error = {error: data.error, code: code};
         
