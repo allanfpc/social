@@ -15,13 +15,6 @@ const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
   
   const [post] = useQuery({
     path: `posts/${id}`,
-    options: {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`
-      }
-    },
     setLoading
   })
 
@@ -32,10 +25,6 @@ const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
       path: `posts/${id}/shares`,
       options: {
         method:  'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({message})
       }
     });

@@ -26,12 +26,6 @@ const Timeline = () => {
 
   const [posts] = useQuery({            
     path: `users/${timelineUser.id}/posts`,
-    options: {
-      headers: { 
-        'Content-Type': 'application/json',
-        authorization: token ? `Bearer ${token}` : undefined
-      }
-    },
     setLoading
   });
 
@@ -167,11 +161,6 @@ const Toolbar = ({user, timelineUser}) => {
       const response = await fetchAction({
         path: `friends/${timelineUser.id}/invites`,
         options: {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            authorization: `Bearer ${token}`
-          },
           body: JSON.stringify(timelineUser)
         }
       });
@@ -196,10 +185,6 @@ const Toolbar = ({user, timelineUser}) => {
       path: `friends/${timelineUser.id}/invites`,
       options: {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: token ? `Bearer ${token}` : undefined
-        },
         body: JSON.stringify(timelineUser)
       }
     });
@@ -221,10 +206,6 @@ const Toolbar = ({user, timelineUser}) => {
         path: `friends/${timelineUser.id}/invites/${invite.id}`,
         options: {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            authorization: token ? `Bearer ${token}` : undefined
-          },
           body: JSON.stringify({status: status, user: timelineUser})
         }
       });
@@ -246,10 +227,6 @@ const Toolbar = ({user, timelineUser}) => {
       path: `friends/${timelineUser.id}/invites/${invite.id}`,
       options: {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: token ? `Bearer ${token}` : undefined
-        },
         body: JSON.stringify(timelineUser)
       }
     });

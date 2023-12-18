@@ -27,15 +27,7 @@ export default function AuthContextProvider({ children }) {
 		// }, (1000 * 60 * 60) + 10000)
 
 		fetchAction({     
-			path: 'auth/user',
-			options: {
-			  method: 'GET',
-			  headers: { 
-				'Content-Type': 'application/json',
-				authorization: token ? `Bearer ${token}` : undefined
-			  },
-			  credentials: 'include',
-			}
+			path: 'auth/user',			
 		}).then((response) => {
 			console.log("RESP: ", response)
 			if(response.error && response.code) {
@@ -64,9 +56,6 @@ export default function AuthContextProvider({ children }) {
 			path: 'register',       
 			options: {
 			  method: 'POST',
-			  headers: { 
-				'Content-Type': 'application/json'
-			  },
 			  body: JSON.stringify(user)
 			}
 		});
@@ -90,10 +79,6 @@ export default function AuthContextProvider({ children }) {
 			path: 'login',       
 			options: {
 			  method: 'POST',
-			  headers: { 
-				'Content-Type': 'application/json'				
-			  },
-			  credentials: 'include',
 			  body: JSON.stringify(user)
 			}
 		});

@@ -17,13 +17,6 @@ const Status = () => {
         
     const [comments] = useQuery({
         path: `posts/${post.post_id}/comments`,
-        options: {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                authorization: token ? `Bearer ${token}` : undefined
-            },            
-        },
         setLoading
     });
 

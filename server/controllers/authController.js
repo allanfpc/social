@@ -87,7 +87,8 @@ async function login(req, res, next) {
 
 		res.cookie("token", token, {
 			maxAge: 60 * 60 * 1000,
-			secure: true
+			httpOnly: true,
+			path: "/"
 		});
 
 		res.status(200).json({
