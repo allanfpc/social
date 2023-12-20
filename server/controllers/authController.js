@@ -88,6 +88,7 @@ async function login(req, res, next) {
 		res.cookie("token", token, {
 			maxAge: 60 * 60 * 1000,
 			httpOnly: true,
+			secure: true,
 			path: "/"
 		});
 
@@ -100,6 +101,16 @@ async function login(req, res, next) {
 	} catch (error) {
 		next(error);
 	}
+}
+
+async function signOut(req, res) {
+	const token = req.cookies.token;
+
+	if (token) {
+		res.cookie("token", "", { maxAge: 0 });
+	}
+
+	res.end();
 }
 
 const generateToken = (data) => {
@@ -118,4 +129,4 @@ const generateToken = (data) => {
 	return token;
 };
 
-export { register, login, generateToken };
+export { register, login, signOut, generateToken };

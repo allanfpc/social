@@ -33,24 +33,6 @@ importedRoutes.forEach(function (route) {
 	});
 });
 
-console.log("hre");
-console.log(routes);
-
-app.use(
-	cors({
-		origin: "http://localhost:5173",
-		credentials: true,
-		optionsSuccessStatus: 200
-	})
-);
-
-app.use(authRoute);
-app.use(userRoute);
-app.use(postsRoute);
-app.use(friendsRoute);
-
-app.use(errorHandler);
-
 app.listen(8080, () => {
 	console.log(`Server listen`);
 });
