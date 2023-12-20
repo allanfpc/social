@@ -4,7 +4,7 @@ import { fetchAction } from "../components/api/api";
 import { useErrorStatus } from "./ErrorContext";
 
 export const AuthContext = createContext(null);
-const preventRoutes = ['/login', '/register', '/signout'];
+const preventRoutes = ['/login', '/register', '/signout', '/404', '/500'];
 
 export default function AuthContextProvider({ children }) {
 	const {setErrorStatusCode} = useErrorStatus();
@@ -97,9 +97,13 @@ export default function AuthContextProvider({ children }) {
 	}
 
 	async function signOut() {
-		await fetchAction({     
-			path: 'signout',			
+		const response = await fetchAction({
+			path: 'signout',
 		});
+
+		if(response.error && response.code) {			
+			return setErrorStatusCode(response.code)
+        }
 	}
 
 	return (
