@@ -14,12 +14,10 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
 
   const [message, setMessage] = useState('');
   const [counter, setCounter] = useState(0);
-  const [error, setError] = useState(null);
-  const [loading,setLoading] = useState(true);
+  const [error, setError] = useState(null);  
   console.log('id: ', id);
-  const [post] =  useQuery({
+  const {data: post, loading } =  useQuery({
     path: `posts/${id}`,
-    setLoading
   })
 
   console.log('POST: ', post);

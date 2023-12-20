@@ -9,13 +9,12 @@ import { fetchAction, useQuery } from "../../../api/api";
 const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
 
   const [message, setMessage] = useState('');  
-  const [counter, setCounter] = useState(0);
-  const [loading,setLoading] = useState(true)
+  const [counter, setCounter] = useState(0);  
   const [error,setError] = useState(null);
   
-  const [post] = useQuery({
+  const { data: post, loading } = useQuery({
     path: `posts/${id}`,
-    setLoading
+    
   })
 
   const share = async () => {

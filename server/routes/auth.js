@@ -3,8 +3,9 @@ import jwt from "jsonwebtoken";
 
 import {
 	generateToken,
+	register,
 	login,
-	register
+	signOut
 } from "../controllers/authController.js";
 import { getUserBy } from "../controllers/userController.js";
 
@@ -43,7 +44,9 @@ router.get("/auth/user", async (req, res, next) => {
 
 			res.cookie("token", token, {
 				maxAge: 60 * 60 * 1000,
-				secure: true
+				httpOnly: true,
+				secure: true,
+				path: "/"
 			});
 
 			res.status(200).json({ guest: true });
@@ -54,5 +57,6 @@ router.get("/auth/user", async (req, res, next) => {
 });
 router.post("/register", register);
 router.post("/login", login);
+router.get("/signout", signOut);
 
 export default router;

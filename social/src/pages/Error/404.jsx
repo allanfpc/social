@@ -1,11 +1,11 @@
 
-const Page404 = () => {
+export const Page404 = () => {
     return (
         <div className="flex-center">
             <div className="error-container">
                 <div className="">
                     <div className="icon">
-                        <img src="/src/assets/not-found.png" alt="not found" />
+                        <img src="/src/assets/not-found.png" alt="not found" width={120}  height={120} />
                     </div>
                     <div className="code">
                         <span>404</span>
@@ -18,5 +18,3 @@ const Page404 = () => {
         </div>    
     )
 }
-
-export default Page404;

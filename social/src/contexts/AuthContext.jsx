@@ -1,54 +1,49 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 
 import { fetchAction } from "../components/api/api";
 import { useErrorStatus } from "./ErrorContext";
 
 export const AuthContext = createContext(null);
+const preventRoutes = ['/login', '/register', '/signout'];
 
 export default function AuthContextProvider({ children }) {
 	const {setErrorStatusCode} = useErrorStatus();
 	const [user, setUser] = useState(null);
-	const isAuthenticated = !!user;
-	
-	const token = Cookies.get('token');
+	const isAuthenticated = user && !user.guest;
 	
 	useEffect(() => {		
 		let isMounted = true;		
-		
-		// const timeoutId = setTimeout(() => {
-		// 	token = Cookies.get('token');
-		// 	console.log('check token: ')
-		// 	if(!token) {
-		// 		console.log('token expired');
-		// 		//navigate('/login');
-		// 	}
-		// }, (1000 * 60 * 60) + 10000)
+		let timeoutId;
 
-		fetchAction({     
-			path: 'auth/user',			
-		}).then((response) => {
-			console.log("RESP: ", response)
-			if(response.error && response.code) {
-				return setErrorStatusCode(response.code)
-			}		
-
-			const user = response.data;
-
-			if(isMounted) {
-				if(user && !user.guest) {
-					setUser(user);
+		if(!preventRoutes.includes(location.pathname)) {
+			fetchAction({     
+				path: 'auth/user',			
+			}).then((response) => {
+				if(response.error && response.code) {
+					return setErrorStatusCode(response.code);
+				}		
+				
+				const user = response.data;
+				if(isMounted) {
+					if(user) {
+						setUser(user);
+						
+						if(user.guest) {
+							timeoutId = setTimeout(() => {
+								location.href = '/login';
+							}, 1000 * 60 * 60)
+						}
+					}
 				}
-			}
-		});
+			});
+		}
 
 		return(() => {
 			isMounted = false;	
-			//clearTimeout(timeoutId)
+			clearTimeout(timeoutId)
 		})
 
-	}, [token]);
+	}, []);
 
 
     async function signUp(user) {
@@ -101,15 +96,14 @@ export default function AuthContextProvider({ children }) {
 		return data;
 	}
 
-	function signOut() {
-		const token = Cookies.get('token');
-		if(token) {			
-			Cookies.remove('token');
-		}
+	async function signOut() {
+		await fetchAction({     
+			path: 'signout',			
+		});
 	}
 
 	return (
-		<AuthContext.Provider value={{user, isAuthenticated, token, signIn, signUp, signOut}}>
+		<AuthContext.Provider value={{user, isAuthenticated, signIn, signUp, signOut}}>
 			{children}
 		</AuthContext.Provider>
 	);
