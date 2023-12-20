@@ -110,7 +110,7 @@ async function signOut(req, res) {
 		res.cookie("token", "", { maxAge: 0 });
 	}
 
-	res.end();
+	res.status(200).json({ success: true });
 }
 
 const generateToken = (data) => {
