@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Input from "../../components/Input";
@@ -14,20 +14,34 @@ const initialData = {
   password: '',
 }
 
-const Login = () => {
+export const Login = () => {
 
   const {signIn} = useAuthContext();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(initialData);
   const [formErrors, setFormErrors] = useState([]);
   const [error, setError] = useState(null);
+  const loginInputRefs = useRef([]);
 
-  const navigate = useNavigate();
+  const err = formErrors.reduce((acc, el) => {
+    acc[el.name] = el;    
+    return acc;
+  }, []);
+
+  useEffect(() => {
+    loginInputRefs.current['email'].focus();    
+  }, []);
 
   const handleSignIn = (e) => {
     const validate = validateForm(formData, loginValidation);
 
     if(validate.errors) {
-      setFormErrors(validate.errors);
+      const errors = validate.errors
+      setFormErrors(errors);      
+      
+      const firstErrorRef = loginInputRefs.current[errors[0].name];
+      firstErrorRef.focus();
+
       e.preventDefault();
       return false;
     }
@@ -51,23 +65,22 @@ const Login = () => {
     }
 
     if(data.token) {
-      console.log('redirect');
 			navigate('/');
 			return true;
 		}
   }
 
-  const changeText = (e, validation, error) => {    
-    if(error) {      
-      setFormData({...formData, [validation.name]: ''})  
-      const deleteError = formErrors.filter((err) => (
+  const changeText = (e, validation) => {        
+    if(formErrors.length > 0) {      
+      const filteredErrors = formErrors.filter((err) => (
         err.name !== validation.name
       ))
-      setFormErrors(deleteError);
+      setFormErrors(filteredErrors);
     }
-    setFormData({...formData, [validation.name]: e.target.value})
+    
+    setFormData({...formData, [validation.name]: err[validation.name] ? e.nativeEvent.data : e.target.value})
   }
-  
+
   return (
     <div>
       <div className="form-container">
@@ -76,26 +89,22 @@ const Login = () => {
         </div>
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-body">
-            {loginValidation.map((validation, i) => {
-              const error = formErrors.find((err) => 
-                err.name === validation.name
-              )
-
-              return (
-                <Input
-                  key={validation.id}
-                  error={error}
-                  label={validation.label}
-                  name={validation.name}
-                  type={validation.type}
-                  id={validation.id}
-                  minlength={validation.validation.minLength?.value}
-                  maxlength={validation.validation.maxLength?.value}
-                  value={error ? '' : formData[validation.name]}
-                  onChange={(e) => changeText(e, validation, error)}                  
-                />
-              )
-            })}                      
+            {loginValidation.map((validation, i) => (
+              <Input
+                className={err[validation.name] ? 'error' : ''}
+                key={validation.id}
+                inputRef={(ref) => loginInputRefs.current[validation.name] = ref}
+                label={validation.label}                      
+                name={validation.name}
+                type={validation.type}
+                id={validation.id}                      
+                minlength={validation.validation.minLength?.value}
+                maxlength={validation.validation.maxLength?.value}
+                value={err[validation.name] ? '' : formData[validation.name]}
+                error={err[validation.name]}
+                onChange={(e) => changeText(e, validation)}                    
+              />              
+            ))}              
             {error && (
               <div className="error-container">
                 <span>{error}</span>
@@ -117,5 +126,3 @@ const Login = () => {
     </div>
   )
 }
-
-export default Login
