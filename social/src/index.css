@@ -482,13 +482,7 @@ nav > div {
 
 .form-container h2 {
   font-size: var(--font-size-lg);
-  font-weight: 500;
-}
-
-
-
-form .error-container {
-  margin-top: 4px;
+  font-weight: 400;
 }
 
 .form::-webkit-scrollbar {
@@ -561,6 +555,7 @@ form .error-container {
   margin-bottom: 24px;
   position: relative;
   width: 100%;
+  max-width: 224px;
 }
 
 label {  
@@ -597,7 +592,7 @@ input {
   padding: 8px 12px 8px 16px;
   display: flex;
   height: 56px;
-  max-width: 240px;
+  max-width: 224px;
   align-items: center;
   border: 1px solid var(--stroke-color-base);
   border-radius: 6px;
@@ -936,8 +931,8 @@ input[type="file"] {
   width: 100%;  
   min-height: 320px;
   flex-direction: row;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   border-bottom: 1px solid rgb(143 143 143 / 50%);  
   z-index: 0;
 }
@@ -1380,12 +1375,17 @@ em-emoji-picker {
   background-color: rgb(101 101 101 / 45%);
 }
 
-.minimized {
-  height: 32px;
+
+.error .input-container {
+  border: 2px solid var(--alert-d-color-base) !important;  
 }
 
-.input-error {
-  border: 2px solid var(--alert-d-color-base) !important;  
+.error .alert {
+  margin-top: 4px;
+  color: var(--alert-d-color-base);
+  font-size: var(--font-label-size);
+  overflow-wrap: break-word;
+  
 }
 
 .alert {
