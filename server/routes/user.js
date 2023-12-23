@@ -1,7 +1,12 @@
 import express from "express";
 import multer from "multer";
 
-import { updateUser, getUserBy } from "../controllers/userController.js";
+import {
+	updateUser,
+	getUserBy,
+	getMessagesBetweenUsers,
+	createMessage
+} from "../controllers/userController.js";
 import { getUserPosts } from "../controllers/postsController.js";
 import authValidation from "../middlewares/authValidation.js";
 import { ApiError } from "../errors/error.js";
@@ -47,6 +52,18 @@ router
 	.delete();
 
 router.get("/users/:userId/posts", authValidation(false), getUserPosts);
+
 router.get("/users/:userId/friends", authValidation(), getUserPosts);
+
+router
+	.route("/users/:userId/messages")
+	.get()
+	.post(authValidation(), createMessage);
+
+router.get(
+	"/users/:senderId/messages/:recipientId",
+	authValidation(),
+	getMessagesBetweenUsers
+);
 
 export default router;

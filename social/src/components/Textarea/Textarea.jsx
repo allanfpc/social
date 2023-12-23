@@ -1,7 +1,7 @@
 
 import {useRef} from 'react';
 
-const Textarea = ({label, placeholder, name, id, type, autofocus = false, value = '', maxlength, counter, onChange, error}) => {
+const Textarea = ({label, placeholder, name, id, cols, rows, autofocus = false, value = '', maxlength, counter, onChange, error}) => {
   console.log('value: ', value);
 
   return (
@@ -12,19 +12,19 @@ const Textarea = ({label, placeholder, name, id, type, autofocus = false, value 
           <label className="bold-16 text-white capitalize" htmlFor={id}>{label}</label>
         </div>
       )}
-      <div className={`input-container ${(value === '' && error) ? 'input-error' : ''}`}>
+      <div className={`textarea-container ${(value === '' && error) ? 'input-error' : ''}`}>
         <div>
           <textarea 
             onChange={onChange}             
-            className={``}            
+            className={``}
             name={name} 
             id={id} 
             value={value} 
             maxLength={maxlength}
             placeholder={placeholder}
             autoFocus={autofocus}
-            cols={32}
-            rows={4}
+            cols={cols || 32}
+            rows={rows || 4}
           />
         </div>
         {counter && (
