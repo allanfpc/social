@@ -43,4 +43,56 @@ async function updateUser(req, res, next) {
 	}
 }
 
-export { updateUser, getUserBy };
+async function createMessage(req, res, next) {
+	const id = req.user.id;
+	const recipientId = req.body.recipientId;
+	const message = req.body.message;
+
+	const [query, place] = [
+		`insert into messages(send_user_id, receive_user_id, message) values(?, ?, ?)`,
+		[id, recipientId, message]
+	];
+
+	try {
+		const [result] = await db.execute(query, place);
+
+		if (!result.insertId) {
+			throw new ApiError(
+				"UNPROCESSABLE_ENTITY",
+				422,
+				"Unable to process the request",
+				false
+			);
+		}
+
+		res.status(201).json({
+			success: true,
+			insertId: result.insertId
+		});
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function getMessagesBetweenUsers(req, res, next) {
+	const senderId = req.user.id;
+	const recipientId = req.params.recipientId;
+	console.log(senderId, recipientId);
+
+	const [query, place] = [
+		`select id, send_user_id, receive_user_id, message, created_at from messages where send_user_id = ? and receive_user_id = ? limit 20 offset 0`,
+		[senderId, recipientId]
+	];
+
+	try {
+		const [rows] = await db.execute(query, place);
+		if (rows.length === 0) {
+			return res.status(204).end();
+		}
+		res.status(200).json(rows);
+	} catch (error) {
+		next(error);
+	}
+}
+
+export { updateUser, getUserBy, createMessage, getMessagesBetweenUsers };
