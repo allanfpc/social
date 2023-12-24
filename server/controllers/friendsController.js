@@ -7,8 +7,11 @@ async function getFriends(req, res, next) {
 	const [query, place] = [
 		`select
 			f.id,
+			f.user_id1,
+			f.user_id2,
 			f.action_user_id,
-			f.status,
+			f.status,			
+			u.id as friend_id,
 			u.name,
 			u.nickname
 		from

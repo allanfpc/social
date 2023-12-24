@@ -77,11 +77,22 @@ async function createMessage(req, res, next) {
 async function getMessagesBetweenUsers(req, res, next) {
 	const senderId = req.user.id;
 	const recipientId = req.params.recipientId;
-	console.log(senderId, recipientId);
 
 	const [query, place] = [
-		`select id, send_user_id, receive_user_id, message, created_at from messages where send_user_id = ? and receive_user_id = ? limit 20 offset 0`,
-		[senderId, recipientId]
+		`select 
+			id, 
+			send_user_id, 
+			receive_user_id, 
+			message, 
+			DATE_FORMAT(created_at, '%k:%i') as date
+		from 
+			messages 
+		where 
+			send_user_id = ? AND receive_user_id = ? OR send_user_id = ? AND receive_user_id = ?
+		order by
+			created_at desc
+		limit 20 offset 0`,
+		[senderId, recipientId, recipientId, senderId]
 	];
 
 	try {
