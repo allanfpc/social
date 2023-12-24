@@ -1,9 +1,7 @@
 
-import {useRef} from 'react';
+import { forwardRef } from "react";
 
-const Textarea = ({label, placeholder, name, id, cols, rows, autofocus = false, value = '', maxlength, counter, onChange, error}) => {
-  console.log('value: ', value);
-
+const Textarea = ({label, placeholder, name, id, cols, rows, autofocus = false, value = '', maxlength, counter, onChange, error}, ref) => {  
   return (
     <>
       <div className="input">
@@ -15,6 +13,7 @@ const Textarea = ({label, placeholder, name, id, cols, rows, autofocus = false, 
       <div className={`textarea-container ${(value === '' && error) ? 'input-error' : ''}`}>
         <div>
           <textarea 
+            ref={ref}
             onChange={onChange}             
             className={``}
             name={name} 
@@ -43,4 +42,4 @@ const Textarea = ({label, placeholder, name, id, cols, rows, autofocus = false, 
   )
 }
 
-export default Textarea
+export default forwardRef(Textarea);

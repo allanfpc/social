@@ -660,7 +660,10 @@ textarea {
 }
 
 textarea::-webkit-scrollbar {
-  width: 0;  
+  display: none;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
 }
 
 input:-webkit-autofill,
@@ -1225,18 +1228,28 @@ input[type="file"] {
   width: 100%;
   height: 32px;  
   flex-direction: row;
-  justify-content: flex-end;
   align-items: center;
   border-bottom: 1px solid var(--stroke-color-base);
 }
 
+.chat__toolbar div {
+  display: flex;
+}
+
+.toggle-expand {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  display: flex;
+}
+
 .expanded {
-  max-height: 300px !important;
+  height: 300px !important;
 }
 
 .chat .container {
   display: flex;    
-  max-height: 0px;
+  height: 0px;
   flex-direction: column;
   overflow: auto;  
   background: var(--bg-color-base);
@@ -1246,7 +1259,9 @@ input[type="file"] {
 
 .chat .container::-webkit-scrollbar {
   display: none;
-  width: 0;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
 }
 
 .message {
@@ -1254,8 +1269,65 @@ input[type="file"] {
 }
 
 .messages {
+  padding: 8px 12px;
   display: flex;
   flex-grow: 1;
+  flex-direction: column-reverse;
+  overflow: auto;
+}
+
+.messages .row {
+  margin: 4px 0;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.messages .row > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages .row:has(.receive) {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.messages .msg {
+  padding: 4px;
+  max-width: 180px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-align: start;
+  box-shadow: var(--elevation-1);
+  background-color: var(--highlight-color-base);
+  border-radius: 2px;
+}
+
+.messages .row:has(.receive) .date {
+  text-align: end;
+}
+
+.messages .date {
+  padding: 0 12px;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.messages .msg span {
+  display: block;
+}
+
+.messages .msg.receive {
+  background-color: var(--stroke-color-base);
+}
+
+.messages::-webkit-scrollbar {
+  display: none;
+  opacity: 0;
+  width: 1px;
+  height: 1px;  
 }
 
 .message-box {
@@ -1269,12 +1341,11 @@ input[type="file"] {
   width: 100%;
 }
 
-.message-box .send {
-  margin: 1px;  
+.message-box .send {  
   display: flex;
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 2px;
+  right: 2px;
 }
 
 .message-box button {
@@ -1295,10 +1366,19 @@ input[type="file"] {
   flex-direction: column;
 }
 
-.title {
+.chat .title {
   margin-bottom: 4px;
   padding: 0 12px;
   display: block;
+  letter-spacing: var(--font-body-tracking);
+  line-height: var(--font-body-lh);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-title-size);
+  color: var(--text-color-alt);
+}
+
+.chat .name {
+  margin-left: 12px;
   letter-spacing: var(--font-body-tracking);
   line-height: var(--font-body-lh);
   font-size: var(--font-body-size);
