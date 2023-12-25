@@ -20,12 +20,10 @@ router.use(express.json({ strict: true, type: "application/json" }));
 
 router
 	.route("/posts")
-	.all(authValidation(false))
-	.get(getAllPosts)
-	.post(uploadFile, createPost)
-	.delete();
+	.get(authValidation(false), getAllPosts)
+	.post(authValidation(), uploadFile, createPost);
 
-router.route("/posts/:postId").get(authValidation(false), fetchPost).delete();
+router.route("/posts/:postId").get(authValidation(false), fetchPost);
 
 router
 	.route("/posts/:postId/likes")

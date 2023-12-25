@@ -55,10 +55,7 @@ router.get("/users/:userId/posts", authValidation(false), getUserPosts);
 
 router.get("/users/:userId/friends", authValidation(), getUserPosts);
 
-router
-	.route("/users/:userId/messages")
-	.get()
-	.post(authValidation(), createMessage);
+router.route("/users/:userId/messages").post(authValidation(), createMessage);
 
 router.get(
 	"/users/:senderId/messages/:recipientId",
