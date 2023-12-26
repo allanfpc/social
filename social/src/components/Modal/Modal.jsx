@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
 
 import Button from "../Button";
 
@@ -25,7 +25,9 @@ export const Modal = ({type, elem, onClose, message, fileUpload, actions, childr
           </div>
           <div className="modal__body">              
             {elem ? (
-              elem
+              <Suspense fallback={<div>Loading...</div>}>
+                {elem}
+              </Suspense>
             ) : (
               <div className="container">
                 <div className="modal__message">
@@ -33,7 +35,7 @@ export const Modal = ({type, elem, onClose, message, fileUpload, actions, childr
                 </div>
               </div>
             )}
-          </div>            
+          </div>                    
           {!elem && (
             <div className="modal__actions">    
               <div>

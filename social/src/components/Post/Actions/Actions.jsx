@@ -1,14 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import { useState, lazy } from "react";
 
 import { useGlobalModalContext } from "../../../contexts/ModalContext";
 
 import Button from "../../Button";
-import Comment from "./Comment/Comment";
-import Share from "./Share";
 
 import { useAuthContext } from "../../../contexts/AuthContext";
 import { fetchAction } from "../../api/api";
 import { useErrorStatus } from "../../../contexts/ErrorContext";
+
+const Comment = lazy(() => import('./Comment/Comment'));
+const Share = lazy(() => import('./Share'));
+
 
 const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTotalShares, setModal}) => {
     const {isAuthenticated, token} = useAuthContext();
@@ -61,7 +63,10 @@ const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTot
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({ elem: <Share token={token} totalShares={totalShares} setTotalShares={setTotalShares} id={id} setModal={setModal} /> })
+            createModal({ elem: 
+                
+                    <Share token={token} totalShares={totalShares} setTotalShares={setTotalShares} id={id} setModal={setModal} /> 
+            })
         }        
     }
 
@@ -71,7 +76,9 @@ const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTot
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({elem: <Comment token={token} totalComments={totalComments} setTotalComments={setTotalComments} id={id} setModal={setModal} />})
+            createModal({elem:                
+                    <Comment token={token} totalComments={totalComments} setTotalComments={setTotalComments} id={id} setModal={setModal} />
+            })
         }
     }
 

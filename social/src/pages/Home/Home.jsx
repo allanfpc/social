@@ -371,9 +371,11 @@ const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPos
         <Album images={files} setImages={setFiles} />
       )}
       {showPicker && (
-        <div className='picker'>
-          <Picker data={data} onEmojiSelect={(e) => chooseEmoji(e)} onClickOutside={hidePicker} />
-        </div>
+        <Suspense>
+          <div className='picker'>
+            <Picker onEmojiSelect={(e) => chooseEmoji(e)} onClickOutside={hidePicker} />
+          </div>
+        </Suspense>
       )}
       <hr />
       <div className="">
