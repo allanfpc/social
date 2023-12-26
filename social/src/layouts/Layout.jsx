@@ -1,31 +1,38 @@
+import {useEffect} from "react";
+import { Outlet, useLocation } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-import Modal from "../components/Modal_copy";
 import Navbar from "../components/Navbar";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useErrorStatus } from "../contexts/ErrorContext";
 import { GlobalModal } from "../contexts/ModalContext";
 
+export function ScrollToTop() {
+  const { pathname } = useLocation();
 
-const Layout = ({modal, setModal, children}) => {
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    
+    return () => {
+      
+    }
+  }, [pathname]);
+
+  return null;
+}
+
+
+export const Layout = () => {
   return (
-    <>     
-      {modal && (        
-        <Modal setIsOpen={setModal} type={modal.type} elem={modal.elem} />
-      )}
+    <GlobalModal>
       <header>
         <Navbar />
       </header>
       <main>
         <div className="wrapper">
           <div className="content">
-            {children}
+            <Outlet />
           </div>
-        </div>
-      </main>
-    </>
-    
+        </div>          
+      </main>  
+      <ScrollToTop />    
+    </GlobalModal>    
   )
 }
-
-export default Layout

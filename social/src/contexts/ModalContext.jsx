@@ -1,5 +1,8 @@
-import React, { useState, createContext, useContext } from 'react';
-import { CreateModal, DeleteModal, UpdateModal } from '../components/Modal';
+import { useState, createContext, useContext, lazy, Suspense } from 'react';
+
+const CreateModal = lazy(() => import('../components/Modal'));
+const DeleteModal = lazy(() => import('../components/Modal'));
+const UpdateModal = lazy(() => import('../components/Modal'));
 
 const initialState = {
   showModal: () => {},
@@ -45,7 +48,9 @@ export const GlobalModal = ({ children }) => {
 
  return (
    <GlobalModalContext.Provider value={{ store, showModal, hideModal }}>
-     {renderComponent()}
+     <Suspense fallback={<div>loading...</div>}>
+       {renderComponent()}
+     </Suspense>
      {children}
    </GlobalModalContext.Provider>
  );
