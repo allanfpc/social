@@ -4,8 +4,8 @@ import multer from "multer";
 import {
 	updateUser,
 	getUserBy,
-	getMessagesBetweenUsers,
-	createMessage
+	createMessage,
+	fetchMessagesBetweenUsers
 } from "../controllers/userController.js";
 import { getUserPosts } from "../controllers/postsController.js";
 import authValidation from "../middlewares/authValidation.js";
@@ -60,7 +60,7 @@ router.route("/users/:userId/messages").post(authValidation(), createMessage);
 router.get(
 	"/users/:senderId/messages/:recipientId",
 	authValidation(),
-	getMessagesBetweenUsers
+	fetchMessagesBetweenUsers
 );
 
 export default router;

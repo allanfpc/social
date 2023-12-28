@@ -7,7 +7,6 @@ import Picker from '@emoji-mart/react';
 import Layout from "../../layouts/Layout";
 import Post from "../../components/Post";
 import User from "../../components/User";
-import Chat from "../../components/Chat";
 import Button from "../../components/Button";
 
 import { useAuthContext } from '../../contexts/AuthContext';
