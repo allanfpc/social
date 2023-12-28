@@ -1264,6 +1264,16 @@ input[type="file"] {
   height: 1px;
 }
 
+.chat .interact {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: rgba(145,145,145,0.5);
+  line-height: var(--font-label-lh);
+  font-size: var(--font-label-size);
+}
+
 .message {
   height: 300px;
 }
@@ -1350,14 +1360,6 @@ input[type="file"] {
 
 .message-box button {
   border-radius: 2px;
-}
-
-@keyframes size {
-  0% {
-    height: 100%
-  } 100% {
-    height: 0%;
-  }
 }
 
 .chat__list {

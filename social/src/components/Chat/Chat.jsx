@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 import User from "../User";
 import Button from "../Button";
 import Textarea from "../Textarea";
 import { useAuthContext } from "../../contexts/AuthContext";
 
-import { useQuery, fetchAction } from '../api/api';
-import { useErrorStatus } from "../../contexts/ErrorContext";
+import { useQuery } from '../api/api';
 
 const Chat = ({isExpanded, setIsChatExpanded}) => {
 
   const { user } = useAuthContext();  
   const [friendInteract, setFriendInteract] = useState(null);
+  const [state, setState] = useState(null);
   
   const {data: friends} = useQuery({
     path: 'friends',
@@ -53,7 +54,8 @@ const Chat = ({isExpanded, setIsChatExpanded}) => {
                 </Button>
               </div>
               <div className="name">
-                <span>{friendInteract.name}</span>
+                <span>{friendInteract.name}</span>                
+                <span className="interact">{(state && state[friendInteract.nickname].typing === true) && (` (typing...)`)}</span>
               </div>
             </>
           )}
@@ -64,7 +66,7 @@ const Chat = ({isExpanded, setIsChatExpanded}) => {
           </div>
         </div>
       )}
-      {friendInteract ? <Message user={user} friendInteract={friendInteract} isExpanded={isExpanded}/> : (<div className={`container ${isExpanded ? 'expanded' : ''}`}>
+      {friendInteract ? <Message user={user} friendInteract={friendInteract} state={state} setState={setState} isExpanded={isExpanded}/> : (<div className={`container ${isExpanded ? 'expanded' : ''}`}>
         <div className="chat__list">
           <div className="title">
             <span>Recent</span>
@@ -109,14 +111,14 @@ const Chat = ({isExpanded, setIsChatExpanded}) => {
 }
 
 
-const Message = ({user, friendInteract, isExpanded}) => {
-  const {setErrorStatusCode} = useErrorStatus();
+const Message = ({user, friendInteract, state, setState, isExpanded}) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
   const lastMessageRef = useRef(null);
   const msgBoxRef = useRef(null);
   const sendMsgRef = useRef(null);
-
+  const conversationId = useRef(null);
+  
   const useRefCallback = useCallback((el) => {
     if(el) {
       sendMsgRef.current = el;
@@ -126,6 +128,33 @@ const Message = ({user, friendInteract, isExpanded}) => {
   const {data: messages, setData: setMessages} = useQuery({
     path: `users/${user.id}/messages/${friendInteract.friend_id}`
   })
+  
+  const { sendJsonMessage, value } = useWebSocket(`ws://localhost:8080/chat?senderUsername=${user.nickname}&recipientUsername=${friendInteract.nickname}`);
+
+  useEffect(() => {
+    if(value) {
+      const event = value.event;
+
+      if(event === "receive-conversation") {
+        conversationId.current = value.conversationId;
+        if(value.state) {
+          setState(value.state);
+        }
+      }
+      
+      if(event === "receive-message") {
+        const message = {send_user_id: value.senderId, receive_user_id: value.recipientId, message: value.message}
+        setMessages([message, ...messages])
+        setMessage("");
+      }
+
+      if(event === "change-state") {
+        if(value.state) {
+          setState(value.state);
+        }
+      }
+    }
+  }, [value])
 
   useEffect(() => {
     if(lastMessageRef.current) {
@@ -139,13 +168,12 @@ const Message = ({user, friendInteract, isExpanded}) => {
       msgBoxRef.current.focus();
     }
 
-  }, [messages]);
+  }, [message, error]);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
       const key = e.key;
-      if (key === "Enter" && sendMsgRef.current) {
-        console.log('click');        
+      if (key === "Enter" && sendMsgRef.current) {      
         sendMsgRef.current.click();
       }
     };
@@ -155,13 +183,30 @@ const Message = ({user, friendInteract, isExpanded}) => {
     return () => {
       document.removeEventListener('keypress', handleKeyPress);
     };
-  }, [sendMsgRef])
+  }, [])
 
   const changeMessage = (message) => {
     if(error) {
       setError(null);
     }
 
+    if(message.length > 0) {
+      if(!state || state && !state?.[user.nickname]?.typing) {        
+        sendJsonMessage({          
+          state: {typing: true},
+          conversationId: conversationId.current,
+          user: user.nickname,
+          event: "change-state"
+        });
+      }
+    } else {
+      sendJsonMessage({          
+        state: {typing: false},
+        conversationId: conversationId.current,
+        user: user.nickname,
+        event: "change-state"
+      });      
+    }    
     setMessage(message);
   } 
 
@@ -175,29 +220,14 @@ const Message = ({user, friendInteract, isExpanded}) => {
       return setError({error: "Enter a valid message"})
     }
 
-    const response =  await fetchAction({
-      path: `users/${user.id}/messages`,
-      options: {
-        method: "POST",
-        body: JSON.stringify({message: message, recipientId: friendInteract.friend_id})
-      }
-    })
-    
-    
-    if(response.error && response.code) {
-      if(response.code === 422 || response.code === 413) {
-        return setError({error: response.error});
-      }
-      return setErrorStatusCode(response.code);
-    }
-
-    const data = response.data;
-
-    if(data.success) {
-      const date = new Date();
-      const newMessage = {id: data.insertId, send_user_id: user.id, receive_user_id: friendInteract.friend_id, message: message, date: `${date.getHours()}:${date.getMinutes()}`};
-      setMessages([newMessage, ...messages])
-      setMessage("");
+    if(conversationId.current) {
+      sendJsonMessage({
+        senderId: user.id,
+        recipientId: friendInteract.id,
+        message: message,      
+        conversationId: conversationId.current,
+        event: "send-message",
+      });
     }
   }
 
@@ -216,7 +246,7 @@ const Message = ({user, friendInteract, isExpanded}) => {
             </div>
           </div>
         ))}
-      </div>
+      </div>      
       {error && (
         <div className="alert">
           <span>{error.error}</span>

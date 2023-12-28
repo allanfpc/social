@@ -43,50 +43,56 @@ async function updateUser(req, res, next) {
 	}
 }
 
-async function createMessage(req, res, next) {
-	const id = req.user.id;
-	const recipientId = req.body.recipientId;
-	const message = req.body.message;
-
+async function createMessage(senderId, recipientId, message, req, res, next) {
 	const [query, place] = [
 		`insert into messages(send_user_id, receive_user_id, message) values(?, ?, ?)`,
-		[id, recipientId, message]
+		[senderId, recipientId, message]
 	];
 
-	try {
-		const [result] = await db.execute(query, place);
+	const [result] = await db.execute(query, place);
 
-		if (!result.insertId) {
-			throw new ApiError(
-				"UNPROCESSABLE_ENTITY",
-				422,
-				"Unable to process the request",
-				false
-			);
-		}
-
-		res.status(201).json({
-			success: true,
-			insertId: result.insertId
-		});
-	} catch (error) {
-		next(error);
+	if (!result.insertId) {
+		throw new ApiError(
+			"UNPROCESSABLE_ENTITY",
+			422,
+			"Unable to process the request",
+			false
+		);
 	}
+
+	return true;
 }
 
-async function getMessagesBetweenUsers(req, res, next) {
+async function fetchMessagesBetweenUsers(req, res, next) {
 	const senderId = req.user.id;
 	const recipientId = req.params.recipientId;
 
+	const messages = await getMessagesBetweenUsers(
+		senderId,
+		recipientId,
+		req,
+		res,
+		next
+	);
+	res.status(200).json(messages);
+}
+
+export async function getMessagesBetweenUsers(
+	senderId,
+	recipientId,
+	req,
+	res,
+	next
+) {
 	const [query, place] = [
 		`select 
 			id, 
 			send_user_id, 
-			receive_user_id, 
+			receive_user_id,			
 			message, 
 			DATE_FORMAT(created_at, '%k:%i') as date
 		from 
-			messages 
+			messages 		
 		where 
 			send_user_id = ? AND receive_user_id = ? OR send_user_id = ? AND receive_user_id = ?
 		order by
@@ -97,13 +103,10 @@ async function getMessagesBetweenUsers(req, res, next) {
 
 	try {
 		const [rows] = await db.execute(query, place);
-		if (rows.length === 0) {
-			return res.status(204).end();
-		}
-		res.status(200).json(rows);
+		return rows;
 	} catch (error) {
 		next(error);
 	}
 }
 
-export { updateUser, getUserBy, createMessage, getMessagesBetweenUsers };
+export { updateUser, getUserBy, createMessage, fetchMessagesBetweenUsers };
