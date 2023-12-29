@@ -1,127 +1,78 @@
 import { useState, useEffect } from "react";
 
-const Album = ({images}) => {
-    console.log('images: ', images)
-    const [size, setSize] = useState('medium');
+const AlbumImage = ({ src, onClick }) => (    
+  <div className="picture">
+    <a href="" onClick={onClick}>
+      <div className="picture-content">        
+        <img src={src} alt="Image" height={100} width={100} />
+      </div>
+    </a>
+  </div>  
+);
 
-    useEffect(() => {
-      const handleResize = () => {
-        const width = window.innerWidth;        
-        if (width <= 600) {
-          setSize('small');
-        } else if (width <= 1200) {
-          setSize('medium');
-        } else {
-          setSize('large');
-        }
-      };
-  
-      handleResize();
+const Album = ({ images, isVisible }) => {
+  const [size, setSize] = useState('medium');
 
-      window.addEventListener('resize', handleResize);
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width <= 600) {
+        setSize('small');
+      } else if (width <= 1200) {
+        setSize('medium');
+      } else {
+        setSize('large');
+      }
+    };
 
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }, []);
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const handleImageClick = (e, index) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Handle image click or set modal here
+    // setModal({ type: 'picture', index });
+  };
+
+  const midpoint = images.length / 2;
+  const firstPart = images.slice(0, midpoint);
+  const lastPart = images.slice(midpoint);
 
   return (
     <div className="album">
-        <div className="picture-wrapper">  
-            <div>
-                <div className="adjust-aspect" style={{paddingBottom: `${images.length > 1 ? '56.25%' : '100%'}`}}>
-                    <div style={{position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }}>
-                        <div className="grid">                                                    
-                            {images.length > 2 ? (
-                                <GridTwoColumn  images={images} size={size} />
-                            ) : (
-                                <GridOneColumn  images={images} size={size} />
-                            )}
-                        </div>
+      <div className="picture-wrapper">
+        <div>
+          <div className="fix-aspect" style={{ paddingBottom: `${images.length > 1 ? '56.25%' : '100%'}` }}>
+            <div style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }}>
+              <div className="fix">
+                  {firstPart.length > 0 && (
+                    <div className="preview-grid" style={firstPart.length > 1 ? {gap: '2px'} : {}}>
+                      {firstPart.map((img, i) => {          
+                        return <AlbumImage key={i} src={`/uploads/${img.img}-small.${img.ext}`} onClick={(e) => onClick(e, i)} />;
+                      })}
                     </div>
-                </div>
+                  )}
+                  {lastPart.length > 0 && (
+                    <div className="preview-grid" style={lastPart.length > 1 ? {gap: '2px'} : {}}>
+                      {lastPart.map((img, i) => {          
+                        return <AlbumImage key={i} src={`/uploads/${img.img}-small.${img.ext}`} onClick={(e) => onClick(e, i)} />;
+                      })}
+                    </div>
+                  )}
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-  )
+  );
 }
-
-const GridOneColumn = ({images, size}) => {
-    
-    const handleImageClick = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        //setModal({type: 'picture' });
-    }
-
-    return (
-        <div style={{flexDirection: 'row'}}>
-            {images.map((img, i) => {                                
-                const name = img.img + '-' + (img.responsive ? size : 'small') + '.' + img.ext;                
-                return (
-                    <div key={i} className="picture">
-                        <a href={`/photo/${i}`} onClick={(e) => handleImageClick(e)}>
-                            <div className="picture-content">         
-                                <div className="" style={{backgroundImage: `url('/uploads/${name}')`}}></div>
-                            </div>
-                        </a>                        
-                    </div>
-                )
-            })}
-        </div>
-    )
-}
-
-const GridTwoColumn = ({images, size}) => {
-    
-    const firstImages = images.slice(0, 2);
-    const lastImages = images.slice(2, images.length);
-
-    const handleImageClick = (e) => {
-        console.log('click:');
-        e.stopPropagation();
-        e.preventDefault();
-
-        //setModal({type: 'picture'});
-    }
-
-    return (
-        <>
-            <div style={{flexDirection: 'column'}}>
-                {firstImages.map((img, i) => {
-                    const name = img.img + '-' + (img.responsive ? size : 'small') + '.' + img.ext;
-                    
-                    return (
-                        <div key={i} className="picture">
-                            <a href={`/photo/${i}`} onClick={(e) => handleImageClick(e)}>
-                                <div className="picture-content">         
-                                    <div className="" style={{backgroundImage: `url('/uploads/${name}')`}}></div>
-                                </div>
-                            </a>                            
-                        </div>
-                    )
-                }
-                )}
-            </div> 
-            <div style={{display: 'flex', flexDirection: 'column', flexGrow: '1', gap: '2px'}}>
-                {lastImages.map((img, i) => {
-                    const name = img.img + '-' + (img.responsive ? size : 'small') + '.' + img.ext;
-                    
-                    return (
-                        <div key={i} className="picture">
-                            <a href={`/photo/${i}`} onClick={(e) => handleImageClick(e)}>
-                                <div className="picture-content">         
-                                    <div className="" style={{backgroundImage: `url('/uploads/${name}')`}}></div>
-                                </div>
-                            </a>                            
-                        </div>
-                    )   
-                })}
-            </div>
-        </>
-                                                   
-    )
-}
-
-export default Album
+  
+export default Album;

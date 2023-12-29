@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 import Actions from "./Actions"
-import Album from "../Album";
+import Album from '../Album';
 import User from "../User";
 
 const Post = ({name, nickname, profile_img, date, actions, text, images, id, liked, totalLikes, totalComments, totalShares, setModal}) => {  
