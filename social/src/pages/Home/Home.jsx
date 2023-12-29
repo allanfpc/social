@@ -133,13 +133,10 @@ const Postbox = ({posts, setPosts, token}) => {
         messageInputRef.current.focus();
         return false;
       }
-    } else {
-      //need to iterate two times because multer failures...
-      for(const file of files) {
-        formData.append("sizes", file.width);
-      }
+    } else {    
       for(const file of files) {
         formData.append('files', file.file);
+        formData.append("sizes", file.width);
       }
     }
 
@@ -367,7 +364,9 @@ const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPos
         </div>                      
       </div>
       {files.length > 0 && (
-        <Album images={files} setImages={setFiles} />
+        <Suspense fallback={"loading..."}>
+          <Preview images={files} setImages={setFiles} />
+        </Suspense>
       )}
       {showPicker && (
         <Suspense>

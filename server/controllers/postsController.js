@@ -377,13 +377,21 @@ async function deleteShare(req, res) {
 
 async function processFile(req, res, next, postId) {
 	const files = req.files;
+	const widths = req.body.sizes;
+	const resizeFile = async (file, index) => {
+		const width = parseInt(typeof widths === "string" ? widths : widths[index]);
 
-	const resizeFile = async (file) => {
 		const sizes = {
-			small: 280,
+			small: width,
 			medium: 680,
 			large: 1024
 		};
+
+		if (width > 300) {
+			sizes.small = 280;
+			file.resize = true;
+		}
+
 		const promises = [];
 
 		try {
@@ -406,9 +414,9 @@ async function processFile(req, res, next, postId) {
 	const resizePromises = [];
 
 	try {
-		for (const file of files) {
+		for (const [index, file] of Object.entries(files)) {
 			if (file.buffer) {
-				resizePromises.push(resizeFile(file));
+				resizePromises.push(resizeFile(file, index));
 			}
 		}
 		await Promise.all(resizePromises);
