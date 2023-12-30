@@ -63,9 +63,8 @@ const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTot
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({ elem: 
-                
-                    <Share token={token} totalShares={totalShares} setTotalShares={setTotalShares} id={id} setModal={setModal} /> 
+            createModal({ elem:                
+                <Share postId={postId} totalShares={totalShares} setTotalShares={setTotalShares} hideModal={hideModal} /> 
             })
         }        
     }
@@ -77,7 +76,7 @@ const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTot
             createModal();
         } else {
             createModal({elem:                
-                    <Comment token={token} totalComments={totalComments} setTotalComments={setTotalComments} id={id} setModal={setModal} />
+                <Comment postId={postId} totalComments={totalComments} setTotalComments={setTotalComments} hideModal={hideModal} />
             })
         }
     }

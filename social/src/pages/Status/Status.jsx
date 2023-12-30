@@ -1,78 +1,67 @@
-import { useContext, useEffect, useState } from "react"
+import { useState, useRef, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 
-import Layout from "../../layouts/Layout"
+
 import Post from "../../components/Post";
 import Comment from "../../components/Post/Comment";
 
 import { useQuery } from "../../components/api/api";
 import { useAuthContext } from "../../contexts/AuthContext";
 
-const Status = () => {
+export const Component = () => {
+    const post = useLoaderData();   
+    const postRef = useRef(null);
 
-    const post = useLoaderData();
-    const {token} = useAuthContext();
-    const [loading, setLoading] = useState(null);
-    const [modal, setModal] = useState(null);
-        
-    const [comments] = useQuery({
+    useEffect(() => {
+        window.scrollTo({ top: 0 });
+    
+        return () => {
+            
+        }
+    }, [])    
+
+    const { data: comments, loading } = useQuery({
         path: `posts/${post.post_id}/comments`,
-        setLoading
     });
 
-    return (
-        <Layout modal={modal} setModal={setModal}>
-            <div className="status">
-                <section className="posts">
-                    <div className="flex-center">
-                        <div className="column">
-                            <div className="posts-wrapper">
-                                <Post          
-                                    name={post.name}
-                                    nickname={post.nickname}
-                                    profile_img={post.profile_img}
-                                    date={post.date}
-                                    images={post.images}
-                                    key={post.post_id}
-                                    id={post.post_id}                    
-                                    text={post.text}                    
-                                    liked={post.liked}
-                                    totalLikes={post.total_likes}
-                                    totalComments={post.total_comments}
-                                    totalShares={post.total_shares}
-                                    setModal={setModal}
-                                    actions
-                                />
-                            </div>
+    return (        
+        <div className="status">
+            <section className="posts">
+                <div className="flex-center">
+                    <div className="column">
+                        <div className="posts-wrapper">
+                            <Post
+                                ref={postRef}          
+                                post={post}                              
+                                actions                                
+                            />
                         </div>
                     </div>
-                </section>
-                <section className="comments">
-                    <div className="flex-center">
-                        <div className="column">
-                            <div className="comments-wrapper">
-                            {loading ? (
-                                <div className="flex-center container">
-                                    <div className="loading">
-                                    <span></span>
-                                    </div>
+                </div>
+            </section>
+            <section className="comments">
+                <div className="flex-center">
+                    <div className="column">
+                        <div className="comments-wrapper">
+                        {loading ? (
+                            <div className="flex-center container">
+                                <div className="loading">
+                                <span></span>
                                 </div>
-                            ) : (!comments || comments.length === 0)
-                            ?
-                                (<div className="container">
-                                    <span>No comments to show</span>
-                                </div>)
-                                :
-                            comments.map((comment, i) => (
-                                <Comment comment={comment} key={i} />
-                            ))}
                             </div>
+                        ) : (!comments || comments.length === 0)
+                        ?
+                            (<div className="container">
+                                <span>No comments to show</span>
+                            </div>)
+                            :
+                        comments.map((comment, i) => (
+                            <Comment comment={comment} key={i} />
+                        ))}
                         </div>
                     </div>
-                </section>
-            </div>
-        </Layout>
+                </div>
+            </section>
+        </div>
     )
 }
-
-export default Status

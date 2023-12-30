@@ -8,19 +8,16 @@ import Post from "../..";
 import { fetchAction, useQuery } from "../../../api/api";
 import { useErrorStatus } from "../../../../contexts/ErrorContext";
 
-const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
+const Comment = ({ postId, totalComments, setTotalComments, hideModal }) => {
 
   const { setErrorStatusCode } = useErrorStatus();
-
   const [message, setMessage] = useState('');
   const [counter, setCounter] = useState(0);
   const [error, setError] = useState(null);  
-  console.log('id: ', id);
-  const {data: post, loading } =  useQuery({
-    path: `posts/${id}`,
-  })
 
-  console.log('POST: ', post);
+  const {data: post, loading } =  useQuery({
+    path: `posts/${postId}`,
+  })
 
   const comment = async () => {
 
@@ -39,7 +36,7 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
     }
 
     const response = await fetchAction({
-      path: `posts/${id}/comments`,
+      path: `posts/${postId}/comments`,
       options: {
         method:  'POST',
         body: JSON.stringify({comment: message})
@@ -54,7 +51,7 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
 
     if(data.success) {
       setTotalComments(totalComments + 1);
-      setModal(null);
+      hideModal();
     }
   }
 
@@ -89,14 +86,7 @@ const Comment = ({ token, id, totalComments, setTotalComments, setModal }) => {
         )}
         {post && (
           <Post
-            images={post.images}
-            key={post.post_id}
-            id={post.post_id}
-            text={post.text}
-            liked={post.liked}
-            totalLikes={post.total_likes}
-            totalComments={post.total_comments}
-            totalShares={post.total_shares}
+            post={post}
           />
         )}
       </div>

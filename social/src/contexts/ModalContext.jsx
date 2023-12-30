@@ -1,8 +1,8 @@
 import { useState, createContext, useContext, lazy, Suspense } from 'react';
 
-const CreateModal = lazy(() => import('../components/Modal'));
-const DeleteModal = lazy(() => import('../components/Modal'));
-const UpdateModal = lazy(() => import('../components/Modal'));
+const StatusModal = lazy(() => import('../components/Modal').then(module => ({ default: module.StatusModal })));
+const CreateModal = lazy(() => import('../components/Modal').then(module => ({ default: module.CreateModal })));
+
 
 const initialState = {
   showModal: () => {},
@@ -11,9 +11,8 @@ const initialState = {
 };
 
 const MODAL_COMPONENTS = {
-  "CREATE_MODAL": CreateModal,
-  "DELETE_MODAL": DeleteModal,
-  "UPDATE_MODAL": UpdateModal
+  "STATUS_MODAL": StatusModal,
+  "CREATE_MODAL": CreateModal
  };
 
 const GlobalModalContext = createContext(initialState);
@@ -23,11 +22,11 @@ export const GlobalModal = ({ children }) => {
  const { modalType, modalProps } = store || {};
 
  const showModal = (modalType, modalProps) => {
-   setStore({
-     ...store,
-     modalType,
-     modalProps,
-   });
+  setStore({
+    ...store,
+    modalType,
+    modalProps,
+  });
  };
 
  const hideModal = () => {
@@ -43,15 +42,17 @@ export const GlobalModal = ({ children }) => {
    if (!modalType || !ModalComponent) {
      return null;
    }
-   return <ModalComponent id="global-modal" {...modalProps} />;
+   return (
+    <Suspense>
+      <ModalComponent id="global-modal" {...modalProps} />
+    </Suspense>
+   );
  };
 
  return (
    <GlobalModalContext.Provider value={{ store, showModal, hideModal }}>
-     <Suspense fallback={<div>loading...</div>}>
-       {renderComponent()}
-     </Suspense>
-     {children}
+      {renderComponent()}
+      {children}
    </GlobalModalContext.Provider>
  );
 };
