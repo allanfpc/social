@@ -2,7 +2,7 @@ import User from "../../User";
 
 const Comment = ({comment}) => {
   return (
-    <div>
+    <div className="container">
         <div className="comment">
             <div>
                 <User.Avatar img={{src: comment.profile_img, alt: comment.name}} nickname={comment.nickname} size={48} />                

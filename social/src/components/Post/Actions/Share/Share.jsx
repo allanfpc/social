@@ -6,22 +6,20 @@ import Post from "../..";
 
 import { fetchAction, useQuery } from "../../../api/api";
 
-const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
-
+const Share = ({ token, postId, totalShares, setTotalShares, hideModal }) => {
   const [message, setMessage] = useState('');  
   const [counter, setCounter] = useState(0);  
   const [error,setError] = useState(null);
   
   const { data: post, loading } = useQuery({
-    path: `posts/${id}`,
-    
+    path: `posts/${postId}`,    
   })
 
   const share = async () => {
     console.log('share: ', message);
 
     const response = await fetchAction({
-      path: `posts/${id}/shares`,
+      path: `posts/${postId}/shares`,
       options: {
         method:  'POST',
         body: JSON.stringify({message})
@@ -37,7 +35,7 @@ const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
 
     if(data.success) {
       setTotalShares(totalShares + 1);
-      setModal(null)
+      hideModal();
     }
   }
 
@@ -72,14 +70,7 @@ const Share = ({ token, id, totalShares, setTotalShares, setModal }) => {
         )}
         {post && (
           <Post             
-            images={post.images}
-            key={post.post_id}
-            id={post.post_id}
-            text={post.text}
-            liked={post.liked}
-            totalLikes={post.total_likes}
-            totalComments={post.total_comments}
-            totalShares={post.total_shares}            
+            post={post}           
           /> 
         )}     
       </div>

@@ -93,18 +93,25 @@ const Profile = ({user, timelineUser, setModal}) => {
   
   const sameUser = (user && (user.id === timelineUser.id));
 
+  const createModal = (props) => {
+    showModal("CREATE_MODAL", {
+        ...props
+    })
+  };
+
   function changeProfilePic(e) {
     const file = e.target.files[0];
-
-    setModal({ elem: <UpdateImage image={file} onImageChange={setProfileImg} token={token} fileUpload={picInputRef.current} /> })
-    
+    createModal({ 
+      elem: <UpdateImage image={file} onImageChange={setProfileImg} token={token} fileUpload={picInputRef.current} />
+    })    
   }
 
   async function changeProfileCover(e) {
     const file = e.target.files[0];
 
-    setModal({ elem: <UpdateImage image={file} onImageChange={setCover} token={token} fileUpload={coverInputRef.current} /> })    
-    
+    createModal({ 
+      elem: <UpdateImage image={file} onImageChange={setCover} token={token} fileUpload={coverInputRef.current} /> 
+    })    
   }  
 
   return (

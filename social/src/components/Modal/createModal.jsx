@@ -12,7 +12,7 @@ export const CreateModal = () => {
  const { title, confirmBtn, elem, message } = modalProps || {};
 
  const handleModalToggle = () => {
-   hideModal();
+  hideModal();
  };
 
  return (
