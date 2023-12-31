@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGlobalModalContext } from "../../contexts/ModalContext";
-const AlbumImage = ({ src, post }) => {  
+const AlbumImage = ({ src, post, index }) => {  
   const {showModal} = useGlobalModalContext();
 
   const handleImageClick = (e) => {
@@ -8,13 +8,14 @@ const AlbumImage = ({ src, post }) => {
     e.preventDefault();
     
     showModal("STATUS_MODAL", {
-      post: post
+      post,
+      index
     });
   } 
 
   return (
     <div className="picture">
-      <a href={`/post/${post.post_id}/status/photo/1`} onClick={(e) => handleImageClick(e)}>
+      <a href={`/post/${post.post_id}/status/photo/${index}`} onClick={(e) => handleImageClick(e)}>
         <div className="picture-content">        
           <img src={src} alt="Image" height={100} width={100} />
         </div>
@@ -39,33 +40,34 @@ const Album = ({ images, post, resize }) => {
     }
   }, [])
 
-  const midpoint = images.length / 2;
+  const midpoint = Math.ceil(images.length / 2);
   const firstPart = images.slice(0, midpoint);
-  const lastPart = images.slice(midpoint);
-
-  const leftGridGap = firstPart.length > 1 ? {gap: '2px'} : {};
-  const rightGridGap = lastPart.length > 1 ? {gap: '2px'} : {};
+  const lastPart =  images.slice(midpoint)
 
   return (
     <div className="album">
       <div className="picture-wrapper">
         <div className="fix-aspect" style={{ paddingBottom: `${images.length > 1 ? '56.25%' : padding}`}}>
           <div className="preview-grid-position">
-            <div className="fix">
-              {firstPart.length > 0 && (
-                <div className="preview-grid" style={leftGridGap}>
-                  {firstPart.map((img, i) => {
-                    return <AlbumImage post={post} key={i} src={`/uploads/${img.img}-${resize ? '-' + resize : 'small'}.${img.ext}`} />;
-                  })}
-                </div>
-              )}
-              {lastPart.length > 0 && (
-                <div className="preview-grid" style={rightGridGap}>
-                  {lastPart.map((img, i) => {          
-                    return <AlbumImage post={post} key={i} src={`/uploads/${img.img}-${resize ? resize : 'small'}.${img.ext}`} />;
-                  })}
-                </div>
-              )}
+            <div className="fix">              
+                {
+                  firstPart.length > 0 && (
+                    <div className="preview-grid" style={{gap: '2px'}}>
+                      {firstPart.map((img, i) => (
+                        <AlbumImage key={i} index={i} post={post} src={`/uploads/${img.img}-${resize ? resize : 'small'}.${img.ext}`} />                                        
+                      ))}
+                    </div>                      
+                  )
+                }
+                {
+                  lastPart.length > 0 && (
+                    <div className="preview-grid" style={{gap: '2px'}}>
+                      {lastPart.map((img, i) => (
+                        <AlbumImage key={(images.length - midpoint) + i} index={(images.length - midpoint) + i} post={post} src={`/uploads/${img.img}-${resize ? resize : 'small'}.${img.ext}`} />                                        
+                      ))}
+                    </div>
+                  )
+                }
             </div>
           </div>
         </div>      

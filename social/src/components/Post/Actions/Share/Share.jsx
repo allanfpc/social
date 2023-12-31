@@ -6,7 +6,7 @@ import Post from "../..";
 
 import { fetchAction, useQuery } from "../../../api/api";
 
-const Share = ({ token, postId, totalShares, setTotalShares, hideModal }) => {
+const Share = ({ postId, totalShares, setTotalShares, hideModal }) => {
   const [message, setMessage] = useState('');  
   const [counter, setCounter] = useState(0);  
   const [error,setError] = useState(null);
@@ -45,7 +45,7 @@ const Share = ({ token, postId, totalShares, setTotalShares, hideModal }) => {
   }
 
   return (
-    <div className="">
+    <>
       <div className="modal__message">
         <Textarea 
           type="text"
@@ -79,7 +79,7 @@ const Share = ({ token, postId, totalShares, setTotalShares, hideModal }) => {
           <Button title="Share" onClick={share} />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
