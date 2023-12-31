@@ -1,7 +1,4 @@
-import React from "react";
-
 import Modal from "./Modal";
-import Button from "../Button";
 
 import { useGlobalModalContext } from "../../contexts/ModalContext";
 
