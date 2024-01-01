@@ -54,7 +54,7 @@ const Share = ({ postId, totalShares, setTotalShares, hideModal }) => {
           maxlength={500}
           id="comment"
           name="comment"
-          placeholder="Write here..."       
+          placeholder="Write here..."
           error={error}          
           autofocus
           counter          

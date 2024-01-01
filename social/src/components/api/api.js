@@ -27,10 +27,8 @@ export function useQuery({path, options = {}}) {
                 credentials: "include",
                 ...options,
             })
-              .then(response => {
-                console.log('respon: ', response);
+              .then(response => {                
                 if(!response.ok) {
-                    console.log('here')
                     setErrorStatusCode(response.status);
                 }
     

@@ -96,7 +96,7 @@ async function login(req, res, next) {
 			success: true,
 			message: "Logged",
 			token,
-			user: { id, name, email }
+			user: { id, name, nickname, email }
 		});
 	} catch (error) {
 		next(error);

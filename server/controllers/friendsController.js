@@ -41,8 +41,7 @@ async function getFriends(req, res, next) {
 
 async function getInvite(req, res, next) {
 	const userId = req.user.id;
-	const addedUserId = req.body.id;
-	console.log(userId, addedUserId);
+	const addedUserId = req.params.friendId;
 
 	const [query, place] = [
 		"select id, user_id1, user_id2, action_user_id, status from friends where user_id1 IN(?, ?) AND user_id2 IN(?, ?)",

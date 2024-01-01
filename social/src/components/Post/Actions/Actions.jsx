@@ -11,44 +11,42 @@ import { useErrorStatus } from "../../../contexts/ErrorContext";
 const Comment = lazy(() => import('./Comment/Comment'));
 const Share = lazy(() => import('./Share'));
 
-
-const Actions = ({id, liked, initialTotalLikes, initialTotalComments, initialTotalShares, setModal}) => {
-    const {isAuthenticated, token} = useAuthContext();
+const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initialTotalShares}) => {
+    const {isAuthenticated} = useAuthContext();
+    const { showModal, hideModal } = useGlobalModalContext();
     const { setErrorStatusCode } = useErrorStatus();
     const [isLiked, setIsLiked] = useState(liked);    
     const [totalLikes, setTotalLikes] = useState(initialTotalLikes);
     const [totalComments, setTotalComments] = useState(initialTotalComments);
     const [totalShares, setTotalShares] = useState(initialTotalShares);
 
-    const { showModal } = useGlobalModalContext();
-
     const createModal = (props) => {
-        console.log('create: ', props);
         showModal("CREATE_MODAL", {
             ...props
-        })  
+        })
     };
 
     const like = async (e) => {
         e.preventDefault();
-        console.log('isLiked: ', isLiked);
         if(!isAuthenticated) {
             createModal();
         } else {
             const response = await fetchAction({
-                path: `posts/${id}/likes`,
+                path: `posts/${postId}/likes`,
                 options: {
                     method: isLiked ? 'PUT' : 'POST',
                 }
             });
-            console.log(response);
+
+
+            console.log(isLiked)
+
             if(response.error && response.code) {                
                 return setErrorStatusCode(response.code)
             }
     
             const data = response.data;
-            console.log('data: ', data);
-    
+            
             if(data.success) {
                 setIsLiked(!isLiked);
                 setTotalLikes(!isLiked ? totalLikes + 1 : totalLikes - 1);

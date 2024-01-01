@@ -1,14 +1,10 @@
 import {useState, useEffect, useMemo, createContext, useContext} from 'react';
 
-import Page404 from '../pages/Error/404';
-import Page500 from '../pages/Error/500';
-
 export const ErrorStatusContext = createContext();
 
 export const ErrorHandler = ({ children }) => {  
-    console.log('handler')
-    const [errorStatusCode, setErrorStatusCode ] = useState();
-    const [modal, setModal] = useState(null);
+  console.log('handler')
+  const [errorStatusCode, setErrorStatusCode ] = useState();
 
   useEffect(() => {
     // Listen for changes to the current location.
