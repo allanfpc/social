@@ -28,7 +28,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage }).single("file");
 
 router.get("/users", async (req, res, next) => {
-	console.log(req.query);
 	const username = req.query.username;
 	if (username) {
 		try {

@@ -11,7 +11,7 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
   const navigate = useNavigate();
   
   const [isVisible, setIsVisible] = useState(null);
-  const {name, nickname, profile_img, date, text, images, id, post_id, liked, totalLikes, totalComments, totalShares} = post;
+  const {name, nickname, profile_img, date, text, images, id, post_id, liked, total_likes, total_comments, total_shares} = post;
   
 
   // useEffect(() => {
@@ -58,8 +58,6 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
     
   // }, [])
 
-  const load = isVisible ? isVisible === id : false;
-  console.log('load: ', isVisible)
 
   const handlePostClick = (e) => {
     const target = e.target;
@@ -80,29 +78,27 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
           </div>
           <div className="post__body"> 
             <User.Desc nickname={nickname} name={name} date={date} />
-            <div className="flex">
-              <div className="flex-container">
-                <div className="">
-                  <div className="post__text">
-                    <span>{text}</span>
-                  </div>
+            <div className="column">
+              <div className="flex">
+                <div className="post__text">
+                  <span>{text}</span>
                 </div>
-                {(images && !noAlbum) && (
-                  <Album
-                    post={post}
-                    images={images}
-                    isVisible={load}
-                  />
-                )}                
               </div>
-            </div>            
+              {(images && !noAlbum) && (
+                <Album
+                  post={post}
+                  images={images}
+                  isVisible={isVisible}
+                />
+              )}                
+            </div>                        
             {actions && (
               <Actions
                 postId={post_id}
                 liked={liked}
-                initialTotalLikes={totalLikes}
-                initialTotalComments={totalComments}
-                initialTotalShares={totalShares}                
+                initialTotalLikes={total_likes}
+                initialTotalComments={total_comments}
+                initialTotalShares={total_shares}                
               />
             )}      
           </div>

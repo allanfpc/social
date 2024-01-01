@@ -1,9 +1,4 @@
-import { useContext } from 'react';
-
-
 import Logo from '../Logo';
-import dark from '../../assets/dark_mode.svg';
-import light from '../../assets/light_mode.svg';
 import Button from '../Button';
 
 import { useThemeContext } from '../../contexts/ThemeContext';

@@ -1,21 +1,15 @@
-import { useNavigate, Outlet } from "react-router-dom";
-
-import Home from "../pages/Home";
-
-import { useEffect } from "react";
-import Cookies from "js-cookie";
+import { Outlet } from "react-router-dom";
+import { useQuery } from "../components/api/api";
 
 const ProtectedRoute = () => {
-	const navigate = useNavigate();
+	const [user] = useQuery({
+		path: 'auth/user',
+	})
 
-	const token = Cookies.get('token')
-
-	useEffect(() => {
-		if(!token) {
-			navigate('/login')
-		}
-	}, [token])
-
+	if(!user || user.guest) {
+		return location.href = '/login';
+	}
+	
 	return (
 	  <Outlet />
 	);
@@ -24,19 +18,14 @@ const ProtectedRoute = () => {
 export default function privateRoutes() {
 
 	return [		
-		{
+		{	
+			path: '/protected',
 			element: <ProtectedRoute />,
 			children: [
 				{
-					path: "/private",
-					element: <Home />
-				},
-				{
-					path: "/settings",
-					element: <Home />
+					index: true,					
 				}
 			]
 		}
-	];
-	
+	];	
 }

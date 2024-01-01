@@ -15,7 +15,6 @@ async function typeValidation(file) {
 
 async function fileFilter(req, file, cb) {
 	const validation = await typeValidation(file);
-
 	if (!validation) {
 		return cb(null, false);
 	}

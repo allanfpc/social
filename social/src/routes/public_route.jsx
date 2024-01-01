@@ -29,7 +29,7 @@ export default function route() {
 			{
 				path: "/post/:post_id/status",				
 				errorElement: <Suspense><ErrorFallback /></Suspense>,
-				async loader({ request, params }) {
+				async loader({ request, params }) {					
 					let { default: loader } = await import("../pages/Status");
 					return loader({ request, params });
 				},

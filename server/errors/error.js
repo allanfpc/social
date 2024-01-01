@@ -31,7 +31,7 @@ export class ValidationError extends BaseError {
 		description = "Bad Request",
 		isOperational = true
 	) {
-		super(name, httpCode, isOperational, description);
+		super(name, httpCode, description, isOperational);
 	}
 }
 

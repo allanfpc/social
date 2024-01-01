@@ -1,10 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import Cookies from "js-cookie";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
-
-import Layout from "../../layouts/Layout";
 import Post from "../../components/Post";
 import User from "../../components/User";
 import Button from "../../components/Button";
@@ -124,7 +119,6 @@ const Postbox = ({posts, setPosts, token}) => {
   
 
   async function sendPost() {
-
     const formData = new FormData();
     formData.append("message", message.message);
    
@@ -228,8 +222,10 @@ const Postbox = ({posts, setPosts, token}) => {
           />
         </div>
         {error && (
-          <div>
-            <span>{`${error.error}${error.files ? ': ' + error.files : ''}`}</span>
+          <div className="error-container">
+            <div className="error-toast">
+              <span>{`${error.error}${error.files ? ': ' + error.files : ''}`}</span>
+            </div>
           </div>
         )}
         <Toolbar

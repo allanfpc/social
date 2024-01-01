@@ -63,14 +63,14 @@ const Comment = ({ postId, totalComments, setTotalComments, hideModal }) => {
   return (
     <>
       <div className="modal__message">
-        <Textarea 
+        <Textarea
           type="text"
           onChange={handleMsgChange}
           value={message}
           maxlength={500}
           id="comment"
           name="comment"
-          placeholder="Write here..."       
+          placeholder="Write here..."
           error={error}          
           autofocus
           counter

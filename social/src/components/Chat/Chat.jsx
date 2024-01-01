@@ -55,7 +55,7 @@ const Chat = ({isExpanded, setIsChatExpanded}) => {
               </div>
               <div className="name">
                 <span>{friendInteract.name}</span>                
-                <span className="interact">{(state && state[friendInteract.nickname].typing === true) && (` (typing...)`)}</span>
+                <span className="interact">{(state && state[friendInteract.nickname]?.typing === true) && (` (typing...)`)}</span>
               </div>
             </>
           )}

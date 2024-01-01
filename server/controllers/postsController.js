@@ -17,7 +17,7 @@ async function getAllPosts(req, res, next) {
             u.nickname,
             u.profile_img,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
-            (select 
+            (select
 				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive))
 			from
 				posts_img
@@ -105,8 +105,6 @@ async function getUserPosts(req, res, next) {
 }
 
 async function getPost(id, postId, next) {
-	console.log("getPost");
-
 	const [query, place] = [
 		`
         SELECT 
@@ -165,15 +163,10 @@ async function fetchPost(req, res, next) {
 }
 
 async function createPost(req, res, next) {
-	console.log("createPos");
-	console.log(req.files);
-	console.log(req.body);
 	const { id } = req.user;
 	const { message } = req.body;
 	const postId = crypto.randomUUID();
 	const files = req.files;
-
-	console.log(id, message, postId);
 
 	const [query, place] = [
 		`insert into posts (user_id, post_id, text) values (?, ?, ?)`,
@@ -216,7 +209,6 @@ async function createPost(req, res, next) {
 }
 
 async function deletePost(req, res, next, id) {
-	console.log(req.params);
 	const postId = id || req.params.postId;
 
 	const [query, place] = [`delete from posts where post_id = ?`, [postId]];

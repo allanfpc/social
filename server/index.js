@@ -1,30 +1,49 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import http from "http";
+import { WebSocketServer } from "ws";
 
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/user.js";
 import postsRoute from "./routes/posts.js";
 import friendsRoute from "./routes/friend.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import { createMessage } from "./controllers/userController.js";
 
 const app = express();
+
 app.use(cookieParser());
+
+app.use(
+	cors({
+		origin:
+			process.env.NODE_ENV === "development"
+				? "http://localhost:5173"
+				: ["http://localhost", "http://localhost:4173"],
+		methods: ["GET", "PUT", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+		allowedHeaders: ["Content-Type"],
+		credentials: true,
+		optionsSuccessStatus: 200
+	})
+);
+
+app.use(authRoute);
+app.use(userRoute);
+app.use(postsRoute);
+app.use(friendsRoute);
+app.use(errorHandler);
 
 const importedRoutes = [authRoute, userRoute, postsRoute, friendsRoute];
 
 const routes = [];
 
 importedRoutes.forEach(function (route) {
-	// console.log(middleware.stack)
 	const stack = route.stack;
 	stack.forEach((middleware) => {
-		// console.log(middleware);
 		if (middleware.route) {
-			// routes registered directly on the app
 			routes.push(middleware.route.path);
 		} else if (middleware.name === "router") {
-			// router middleware
 			middleware.handle.stack.forEach(function (handler) {
 				route = handler.route;
 				route && routes.push(route.path);
