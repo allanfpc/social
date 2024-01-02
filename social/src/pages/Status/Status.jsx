@@ -32,7 +32,7 @@ export const Component = () => {
                         <div className="posts-wrapper">
                             <Post
                                 ref={postRef}          
-                                post={post}                              
+                                post={post[0]}                              
                                 actions                                
                             />
                         </div>
@@ -49,7 +49,7 @@ export const Component = () => {
                                 <span></span>
                                 </div>
                             </div>
-                        ) : (!comments || comments.length === 0)
+                        ) : (comments.length === 0)
                         ?
                             (<div className="container">
                                 <span>No comments to show</span>

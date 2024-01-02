@@ -207,18 +207,20 @@ const Postbox = ({posts, setPosts, token}) => {
     <div className="flex">
       <div className="post-box padding-container">
         <div className="post-box__field">
-          <textarea 
-            name=""
-            id=""
-            cols="30"
-            rows="10"
+          <div id="placeholder" className="post-box__placeholder">
+            <span>{message.message.length === 0 && "What's happening?"}</span>
+          </div>
+          <Textarea 
+            name="post-box"
+            id="post-box"
             ref={messageInputRef}
             value={message.message}
-            placeholder={`${message.length === 0 ? "What's happening?" : ""}`}
+            rows={6}            
             onChange={(e) => setMessage({message: e.target.value, lastIndex: message.lastIndex + 1})}
             onClick={(e) => getCaretIndex(e)}
             onFocus={(e) => onFocus(e)}       
             onKeyUp={(e) => getCaretIndex(e)}
+            ariaLabelledBy="placeholder"
           />
         </div>
         {error && (
@@ -345,7 +347,7 @@ const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPos
           <Button onClick={() => imageInputRef.current.click()} label="Upload image for share">
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M212.309-140.001q-30.308 0-51.308-21t-21-51.308v-535.382q0-30.308 21-51.308t51.308-21h535.382q30.308 0 51.308 21t21 51.308v535.382q0 30.308-21 51.308t-51.308 21H212.309Zm0-59.999h535.382q4.616 0 8.463-3.846 3.846-3.847 3.846-8.463v-535.382q0-4.616-3.846-8.463-3.847-3.846-8.463-3.846H212.309q-4.616 0-8.463 3.846-3.846 3.847-3.846 8.463v535.382q0 4.616 3.846 8.463 3.847 3.846 8.463 3.846Zm57.693-90.001h423.073L561.538-465.384 449.231-319.231l-80-102.306-99.229 131.536ZM200-200V-760-200Z"/></svg>
           </Button>
-          <input type="file" accept="image/jpeg, image/png, image/gif, image/webp" ref={imageInputRef} multiple onChange={(e) => chooseImage(e.target.files)} />
+          <input type="file" accept="image/jpeg, image/png, image/gif, image/webp" ref={imageInputRef} multiple onChange={(e) => chooseImage(e.target.files)} aria-label="Upload Image" />
         </div>
         <div>
           <Button onClick={(e) => togglePicker(e)} label="Open Emoji Picker">
@@ -353,10 +355,10 @@ const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPos
           </Button>              
         </div>
         <div>
-          <Button onClick={() => shareLocationInputRef.current.click()} label="Share location">
+          <Button onClick={() => shareLocationInputRef.current.click()} label="Share Location">
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M519.385-102.001V-162q43.538-6.385 83.038-23 39.5-16.615 72.962-42.231l42.999 43.384q-43.539 34.307-93.308 54.692-49.769 20.384-105.691 27.154Zm256.152-139.846L733.385-284q26-33 42-72.5t22-83.5h61.229q-6.846 56.23-27.808 106.269-20.961 50.038-55.269 91.884ZM797.385-520q-6-45-22-84.5t-42-71.5l42.537-41.768q36.077 44.769 56.307 91.846Q852.46-578.846 858.614-520h-61.229Zm-358 417.999q-144.538-17.616-241.269-124.846-96.73-107.231-96.73-253.153 0-146.538 96.538-253.961 96.538-107.422 241.461-124.038V-798q-120 17-199 107t-79 211q0 121 79 210.5t199 107.5v59.999Zm238-629.999q-36-27-75.808-44-39.808-17-81.423-22v-59.999q54.769 5.77 104.345 26.347 49.577 20.576 93.885 55.499L677.385-732ZM480-299.617q-52.23-44.769-98.422-95.384t-46.192-118.691q0-61.461 41.884-104.845 41.884-43.385 102.73-43.385 60.846 0 102.73 43.385 41.884 43.384 41.884 104.845 0 68.076-46.192 118.691Q532.23-344.386 480-299.617Zm0-180.768q16.461 0 27.615-11.153 11.154-11.154 11.154-27.616 0-15.846-11.154-27.307-11.154-11.461-27.615-11.461t-27.615 11.461Q441.231-535 441.231-519.154q0 16.462 11.154 27.616 11.154 11.153 27.615 11.153Z"/></svg>
           </Button>
-          <input type="file" ref={shareLocationInputRef} />
+          <input type="file" ref={shareLocationInputRef} aria-label="Share Location" />
         </div>                      
       </div>
       {files.length > 0 && (

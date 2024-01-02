@@ -68,9 +68,9 @@ const Share = ({ postId, totalShares, setTotalShares, hideModal }) => {
             </div>
           </div>
         )}
-        {post && (
+        {post.length > 0 && (
           <Post             
-            post={post}           
+            post={post[0]}           
           /> 
         )}     
       </div>

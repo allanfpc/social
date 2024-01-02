@@ -140,7 +140,7 @@ async function getPost(id, postId, next) {
 	try {
 		const [row] = await db.query(query, place);
 
-		return row[0];
+		return row;
 	} catch (error) {
 		next(error);
 	}
