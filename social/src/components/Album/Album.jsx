@@ -15,9 +15,9 @@ const AlbumImage = ({ src, post, index }) => {
 
   return (
     <div className="picture">
-      <a href={`/post/${post.post_id}/status/photo/${index}`} onClick={(e) => handleImageClick(e)}>
+      <a href={`post/${post.post_id}/status/photo/${index}`} onClick={(e) => handleImageClick(e)}>
         <div className="picture-content">        
-          <img src={src} alt="Image" height={100} width={100} />
+          <img src={src} height={100} width={100} />
         </div>
       </a>
     </div>  

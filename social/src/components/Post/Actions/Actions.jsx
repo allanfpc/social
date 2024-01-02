@@ -1,4 +1,4 @@
-import { useState, lazy } from "react";
+import { useState, lazy, Suspense } from "react";
 
 import { useGlobalModalContext } from "../../../contexts/ModalContext";
 
@@ -61,8 +61,10 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({ elem:                
-                <Share postId={postId} totalShares={totalShares} setTotalShares={setTotalShares} hideModal={hideModal} /> 
+            createModal({ elem:      
+                <Suspense fallback={null}>
+                    <Share postId={postId} totalShares={totalShares} setTotalShares={setTotalShares} hideModal={hideModal} />
+                </Suspense>          
             })
         }        
     }
@@ -73,8 +75,10 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({elem:                
-                <Comment postId={postId} totalComments={totalComments} setTotalComments={setTotalComments} hideModal={hideModal} />
+            createModal({elem: 
+                <Suspense fallback={null}>
+                    <Comment postId={postId} totalComments={totalComments} setTotalComments={setTotalComments} hideModal={hideModal} />
+                </Suspense>               
             })
         }
     }

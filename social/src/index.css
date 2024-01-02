@@ -82,6 +82,7 @@
   --text-color-base: #000;
   --text-color-alt: #484848;
   --highlight-color-base: var(--color-gray-1);
+  --highlight-color-alt: #000;
   --stroke-color-base: var(--color-blue-1);
   --alert-s-color-base: var(--color-green-2);
   --alert-d-color-base: var(--color-red-2);
@@ -106,6 +107,7 @@
   --text-color-base: #f9f9f9;
   --text-color-alt: #919191;
   --highlight-color-base: var(--color-gray-3);
+  --highlight-color-alt: #919191;
   --stroke-color-base: var(--color-purple-1);
   --alert-s-color-base: var(--color-green-1);
   --alert-d-color-base: var(--color-red-1);
@@ -200,14 +202,14 @@
 }
 
 a {
-  display: inline-block;
+  display: flex;
   font-weight: 500;
-  color: var(--color-purple-3);
+  color: var(--text-color-base);
   text-decoration: inherit;
 }
 
 a:hover {
-  color: var(--color-purple-2);
+  color: var(--highlight-color-alt);
 }
 
 a > p {
@@ -258,15 +260,19 @@ main {
   padding: calc(56px + var(--spacing)) 0;
   display: flex;  
   width: 100%;  
-  justify-content: center;  
   flex-wrap: wrap;  
+  justify-content: center;
   gap: 24px;
   z-index: 0;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: var(--font-title-size);
+  line-height: var(--font-title-lh);
+  letter-spacing: var(--font-title-tracking);
+  font-weight: var(--font-title-weight);
+  font-family: inherit;
+  color: var(--text-color-base);  
 }
 
 button svg {
@@ -369,7 +375,7 @@ button:disabled {
 }
 
 .rounded {
-  padding: 0 4px;
+  padding: 0 8px;
 }
 
 .btn-sm {
@@ -467,8 +473,10 @@ nav > div {
 }
 
 .form::-webkit-scrollbar {
-  width: 0;
   display: none;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
 }
 
 
@@ -532,7 +540,7 @@ nav > div {
   border-radius: 2px;
 }
 
-.row {  
+.form-body .row {  
   margin-bottom: 24px;
   position: relative;
   width: 100%;
@@ -555,7 +563,7 @@ input {
 
 .input-container:focus-within {
   border: 2px solid var(--stroke-color-base);
-  background-color: var(--highlight-color-base);
+  background-color: #3f3f3f40;
 }
 
 .move-label {
@@ -606,13 +614,16 @@ textarea {
 }
 
 .textarea-container {
-  padding: 4px 6px;
+  position: relative;
+  padding: 8px 12px;
   display: flex;
   width: 100%;
   align-items: center;
   overflow-wrap: break-word;
+  text-align: start;
   border: 1px solid var(--stroke-color-base);
   border-radius: 2px;
+  z-index: 1;
 }
 
 .textarea-container textarea::placeholder {  
@@ -624,7 +635,10 @@ textarea {
   position: absolute;
   top: 0;
   right: 0;  
-  width: 120px;
+  font-size: var(--font-body-size);
+  line-height: var(--font-body-lh);
+  font-weight: var(--font-body-weight);
+  width: 80px;
   height: 40px;
   text-align: center;
   color: #694d4df0;
@@ -654,17 +668,6 @@ input:-webkit-autofill:active{
   transition: background-color 5000s ease-in-out 0s;
   -webkit-text-fill-color: var(--text-color-base) !important;  
   caret-color: var(--text-color-base);
-}
-
-:where([type="text"], [type="email"], [type="password"])::placeholder {
-  color: var(--alert-d-color-base);
-}
-
-input[type="file"] {
-  opacity: 0;
-  height: 1px !important;
-  width: 1px !important;
-  min-width: 1px;
 }
 
 .user-info {
@@ -903,28 +906,44 @@ section.post .post-wrapper .container {
 }
 
 .post-box__field {
+  position: relative;
   display: flex;
-  border-radius: 2px;
+  overflow-wrap: break-word;
   box-shadow: var(--elevation-1);
   background-color: var(--highlight-color-base);
   border: 1px solid rgb(143 143 143 / 50%);
+  border-radius: 2px;
 }
 
-.post-box__field textarea {
-  margin: 4px;
-  padding: 4px;
+.post-box__placeholder {
+  padding: 8px 12px;
+  position: absolute;
+  display: flex;
   width: 100%;
-  font-size: 16px;
-  overflow-wrap: break-word;
-  font-weight: 500;
-  text-align: justify;
+  font-size: var(--font-headline-size);
+  font-weight: var(--font-headline-weight);
+  line-height: var(--font-headline-lh);
+  letter-spacing: var(--font-headline-tracking);
+  color: var(--text-color-alt);
+  z-index: 0;
+}
+
+
+.post-box__field textarea {
+  width: 100%;
+  font-size: var(--font-headline-size);
+  font-weight: var(--font-headline-weight);
+  line-height: var(--font-headline-lh);
+  letter-spacing: var(--font-headline-tracking);
   color: var(--text-color-base);
 }
 
 .post-box__field textarea::placeholder {
-  font-size: 18px;
-  font-weight: 600;
-  color: #7a7a7a;
+  font-size: var(--font-headline-size);
+  font-weight: var(--font-headline-weight);
+  line-height: var(--font-headline-lh);
+  letter-spacing: var(--font-headline-tracking);
+  color: var(--text-color-alt);
 }
 
 .post-box__field textarea::-webkit-scrollbar {
@@ -947,11 +966,20 @@ section.post .post-wrapper .container {
   flex-direction: row;  
   align-items: center;
   flex-grow: 1;
-  column-gap: 4px;
 }
 
 .post-box__toolbar__actions > div {
-  display: flex;  
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+}
+
+.post-box__toolbar__actions input[type="file"] {
+  display: none;
+  opacity: 0;
+  height: 1px !important;
+  width: 1px !important;
+  min-width: 1px;
 }
 
 .posts-wrapper, .post-wrapper, .timeline {
@@ -959,8 +987,15 @@ section.post .post-wrapper .container {
   width: 100%;
   height: 100%;
   flex-direction: column;
-  align-items: center;
   z-index: 0;
+}
+
+.posts-wrapper .title {
+  padding: 0 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid rgb(143 143 143 / 50%);
 }
 
 .post-wrapper article {
@@ -1202,27 +1237,19 @@ section.post .post-wrapper .container {
 }
 
 .actions__wrapper {
-  padding: 0.25rem 1rem;
   display: flex;  
   flex-direction: row;  
   flex-grow: 1;
   justify-content: space-between;
-  font-size: 15px;
-  column-gap: 4px;
-  background: #27272700;
-  box-shadow: var(--elevation-1);
+  box-shadow: var(--elevation-0);
   border-radius: 2px;
 }
 
-.actions__wrapper button {
-  height: 32px;
-}
-
 .actions__wrapper > div {
+  padding-right: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
 }
 
 .actions__wrapper > div > div {
@@ -1684,7 +1711,7 @@ em-emoji-picker {
 }
 
 /* Acessibility */
-.visually-hidden {
+.visually-hidden:not(:focus):not(:active) {
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   -webkit-clip-path: inset(50%) !important;
@@ -1695,7 +1722,7 @@ em-emoji-picker {
   padding: 0 !important;
   position: absolute !important;
   width: 1px !important;
-  white-space: nowrap !important;
+  white-space: nowrap !important;  
 }
 
 .loading {
@@ -1792,7 +1819,10 @@ em-emoji-picker {
     border: 1px solid gray;
   }
   .actions__wrapper {
-    padding: 0.25rem 3rem;
+    padding: 0 2rem;
+  }
+  .actions__wrapper > div {
+    padding: 0px 24px 0 16px;
   }
 }
 

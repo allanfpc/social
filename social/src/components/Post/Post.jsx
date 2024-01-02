@@ -79,11 +79,13 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
           <div className="post__body"> 
             <User.Desc nickname={nickname} name={name} date={date} />
             <div className="column">
-              <div className="flex">
-                <div className="post__text">
-                  <span>{text}</span>
+              {text.length > 1 && (
+                <div className="flex">
+                  <div className="post__text">
+                    <span>{text}</span>
+                  </div>
                 </div>
-              </div>
+              )}
               {(images && !noAlbum) && (
                 <Album
                   post={post}

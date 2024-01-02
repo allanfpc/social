@@ -84,9 +84,9 @@ const Comment = ({ postId, totalComments, setTotalComments, hideModal }) => {
             </div>
           </div>
         )}
-        {post && (
+        {post.length > 0 && (
           <Post
-            post={post}
+            post={post[0]}
           />
         )}
       </div>
