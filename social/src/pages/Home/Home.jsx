@@ -130,7 +130,7 @@ const Postbox = ({posts, setPosts, token}) => {
     } else {    
       for(const file of files) {
         formData.append('files', file.file);
-        formData.append("sizes", file.width);
+        formData.append("sizes", file.width);        
       }
     }
 
@@ -237,46 +237,49 @@ const Postbox = ({posts, setPosts, token}) => {
           sendPost={sendPost} 
           files={files} 
           setFiles={setFiles} 
+          showError={showError}
         />
       </div>
     </div>
   )
 }
 
-const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPost}) => {
-
+const Toolbar = ({message, messageInputRef, setMessage, files, setFiles, sendPost, showError}) => {
   const [showPicker, setShowPicker] = useState(false);
   const imageInputRef = useRef(null);
   const shareLocationInputRef = useRef(null);
 
   async function chooseImage(images) {
     const validTypes = ['image/webp', 'image/jpeg', 'image/png', 'image/gif'];
-    
-    for(let i = 0; i < images.length; i++) {      
-      if(files.length === 4) {
-        break;
-      }
+  
+    if(files.length + images.length > 4) {
+      showError("TOAST_ERROR", {error: 'You can only upload up to 4 images.'});
+      return;
+    }
 
-      const file = images[i];      
-      
-      if(!(validTypes.includes(file.type))) {
+    const uploaded = [];
+
+    for(const img of images) {      
+      if(!(validTypes.includes(img.type))) {
         continue;
       }
 
-      const url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(img);
   
       const promise = new Promise((resolve) => {
-        const img = new Image();
-        img.onload = function(){          
-          resolve({ width: img.width, height: img.height });
+        const image = new Image();
+        image.onload = function(){
+          resolve({ width: image.width, height: image.height });
         }
-        img.src = url;
+        image.src = url;
       })
 
       const dimensions = await promise;
-      setFiles(prevFiles => [...prevFiles, {file: file, url: url, width: dimensions.width, height: dimensions.height }]);
       
-    }    
+      uploaded.push({file: img, url: url, width: dimensions.width, height: dimensions.height });
+    }
+
+    setFiles(prevFiles => [...prevFiles, ...uploaded]);
     imageInputRef.current.value = '';
   }
 
