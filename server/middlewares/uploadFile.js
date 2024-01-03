@@ -35,8 +35,6 @@ const uploadMemory = multer({
 
 async function uploadFile(req, res, next) {
 	const promise = new Promise((resolve, reject) => {
-		console.log(req.sizes);
-		console.log(req.files);
 		uploadMemory(req, res, function (err) {
 			if (err) {
 				reject(err);

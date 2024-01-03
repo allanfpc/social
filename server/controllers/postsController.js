@@ -18,9 +18,9 @@ async function getAllPosts(req, res, next) {
             u.profile_img,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
             (select
-				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive))
+				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
 			from
-				posts_img
+				posts_img			
             where
 				posts.post_id = posts_img.post_id ) AS images,
             (select count(comment) from comments where comments.post_id = posts.post_id) as total_comments, 
@@ -68,7 +68,7 @@ async function getUserPosts(req, res, next) {
             u.profile_img,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
 			(select 
-				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive))
+				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
 			from
 				posts_img
             where
@@ -77,7 +77,7 @@ async function getUserPosts(req, res, next) {
             (select count(message) from shares where shares.post_id = posts.post_id) as total_shares, 
             (select count(post_id) from likes where likes.post_id = posts.post_id AND likes.liked = 1) as total_likes,
             (select liked from likes where likes.user_id = ? AND liked = 1 AND posts.post_id = likes.post_id) as liked
-        FROM 
+        FROM
             posts
         LEFT JOIN 
             users as u on user_id = u.id        
@@ -115,7 +115,7 @@ async function getPost(id, postId, next) {
             u.profile_img,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
 			(select 
-				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive))
+				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
 			from
 				posts_img
             where
@@ -370,19 +370,31 @@ async function deleteShare(req, res) {
 async function processFile(req, res, next, postId) {
 	const files = req.files;
 	const widths = req.body.sizes;
+
 	const resizeFile = async (file, index) => {
 		const width = parseInt(typeof widths === "string" ? widths : widths[index]);
 
 		const sizes = {
-			small: width,
-			medium: 680,
-			large: 1024
+			small: width < 300 ? width : 280
 		};
 
-		if (width > 300) {
-			sizes.small = 280;
-			file.resize = true;
+		if (width > 680) {
+			sizes.medium = 680;
+		} else {
+			if (sizes.small !== width) {
+				sizes.medium = width;
+			}
 		}
+
+		if (width > 1024) {
+			sizes.large = 1024;
+		} else {
+			if (sizes.medium !== width && sizes.small !== width) {
+				sizes.large = width;
+			}
+		}
+
+		file.sizes = sizes;
 
 		const promises = [];
 
@@ -390,7 +402,7 @@ async function processFile(req, res, next, postId) {
 			for (const size in sizes) {
 				promises.push(
 					sharp(file.buffer)
-						.resize(sizes[size], sizes[size])
+						.resize(sizes[size])
 						.toFile(`../social/uploads/${file.randomId}-${size}.${file.ext}`)
 				);
 			}
@@ -422,7 +434,7 @@ async function processFile(req, res, next, postId) {
 async function insertPostFiles(postId, files) {
 	const errorFiles = [];
 
-	const query = `insert into posts_img(img_id, post_id, img, ext, responsive) values(?, ?, ?, ?, ?)`;
+	const query = `insert into posts_img(img_id, post_id, img, ext, responsive, sizes) values(?, ?, ?, ?, ?, ?, ?)`;
 
 	for (const file of files) {
 		const [result] = await db.query(query, [
@@ -430,7 +442,8 @@ async function insertPostFiles(postId, files) {
 			postId,
 			file.randomId,
 			file.ext,
-			file.resize
+			file.resize,
+			JSON.stringify(file.sizes)
 		]);
 
 		if (!result.insertId) {

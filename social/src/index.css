@@ -1130,10 +1130,11 @@ section.post .post-wrapper .container {
 }
 
 .fix-aspect {  
+  display: block;
   width: 100%;
-  overflow: hidden;
   height: 100%;
   position: relative;
+  overflow: hidden;
   padding-bottom: 100%;
   box-shadow: var(--elevation-1);
   border-radius: 20px;
@@ -1194,9 +1195,13 @@ section.post .post-wrapper .container {
   background-size: cover;
 }
 
+.posts-wrapper .album {
+  margin-top: 12px;
+}
+
 .album {  
-  display: flex;   
-  flex-grow: 1; 
+  display: flex;
+  width: 100%;   
 }
 
 .album-grid > div {
@@ -1215,15 +1220,6 @@ section.post .post-wrapper .container {
   border: 1px solid #000;
   border-radius: 20px;
   z-index: 1;  
-}
-
-.picture-wrapper > div {
-  display: block;
-  position: relative;  
-  overflow: hidden;
-  margin: 0px;
-  box-shadow: var(--elevation-2);
-  border-radius: 20px;
 }
 
 .padding-max {
@@ -1752,9 +1748,6 @@ em-emoji-picker {
 }
 
 @media (max-width: 600px) {
-  section.image {
-    height: initial;
-  }
   .modal {
     display: flex;
     flex-direction: row;
@@ -1860,11 +1853,6 @@ em-emoji-picker {
     --font-label-size: 14px;
     --font-label-weight: 500;
     --font-label-weight-prominent: 700;
-  }
-
-  .modal .album {
-    width: 320px;
-    height: 320px;
   }
 
   .user-info {
