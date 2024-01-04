@@ -6,7 +6,7 @@ import Button from "../../Button";
 
 import { useAuthContext } from "../../../contexts/AuthContext";
 import { fetchAction } from "../../api/api";
-import { useErrorStatus } from "../../../contexts/ErrorContext";
+import { useErrorContext } from "../../../contexts/ErrorContext";
 
 const Comment = lazy(() => import('./Comment/Comment'));
 const Share = lazy(() => import('./Share'));
@@ -14,7 +14,7 @@ const Share = lazy(() => import('./Share'));
 const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initialTotalShares}) => {
     const {isAuthenticated} = useAuthContext();
     const { showModal, hideModal } = useGlobalModalContext();
-    const { setErrorStatusCode } = useErrorStatus();
+    const { showError } = useErrorContext();
     const [isLiked, setIsLiked] = useState(liked);    
     const [totalLikes, setTotalLikes] = useState(initialTotalLikes);
     const [totalComments, setTotalComments] = useState(initialTotalComments);
@@ -42,7 +42,7 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
             console.log(isLiked)
 
             if(response.error && response.code) {                
-                return setErrorStatusCode(response.code)
+                return showError(response.code)
             }
     
             const data = response.data;

@@ -15,7 +15,11 @@ export default function authValidation(needAuth = true) {
 			req.user = decoded.user;
 			next();
 		} catch (error) {
-			next(error);
+			if (error.name === "JsonWebTokenError") {
+				next(new ApiError("AUTH_ERROR", 401, "Unauthorized", true));
+			} else {
+				next(error);
+			}
 		}
 	};
 }

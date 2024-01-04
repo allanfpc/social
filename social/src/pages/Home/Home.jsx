@@ -7,8 +7,7 @@ import Button from "../../components/Button";
 import { useAuthContext } from '../../contexts/AuthContext';
 
 import { fetchAction, useQuery } from "../../components/api/api";
-import { useErrorStatus } from "../../contexts/ErrorContext";
-import { GlobalModal } from "../../contexts/ModalContext";
+import { useErrorContext } from "../../contexts/ErrorContext";
 
 const Home = () => {
   const {user, isAuthenticated, token} = useAuthContext();  
@@ -94,7 +93,7 @@ const Home = () => {
 
 const Postbox = ({posts, setPosts, token}) => {
 
-  const {setErrorStatusCode} = useErrorStatus();
+  const {showError} = useErrorContext();
 
   const [message, setMessage] = useState({
     message: '',
@@ -103,7 +102,6 @@ const Postbox = ({posts, setPosts, token}) => {
   });
 
   const [files, setFiles] = useState([]);
-  const [error, setError] = useState(null);
   const messageInputRef = useRef(null);
 
   useEffect(() => {
@@ -145,9 +143,8 @@ const Postbox = ({posts, setPosts, token}) => {
     
     if(response.error && response.code) {
       if(response.code === 422 || response.code === 413) {
-        return setError({error: response.error, files: response?.files});
+        return showError("TOAST_ERROR", {error: response.error, files: response?.files});
       }
-      return setErrorStatusCode(response.code);
     }
 
     const data = response.data;
@@ -223,13 +220,6 @@ const Postbox = ({posts, setPosts, token}) => {
             ariaLabelledBy="placeholder"
           />
         </div>
-        {error && (
-          <div className="error-container">
-            <div className="error-toast">
-              <span>{`${error.error}${error.files ? ': ' + error.files : ''}`}</span>
-            </div>
-          </div>
-        )}
         <Toolbar
           message={message}
           setMessage={setMessage}

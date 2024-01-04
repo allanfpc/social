@@ -1,13 +1,13 @@
 import { createContext, useState, useEffect, useContext } from "react";
 
 import { fetchAction } from "../components/api/api";
-import { useErrorStatus } from "./ErrorContext";
+import { useErrorContext } from "./ErrorContext";
 
 export const AuthContext = createContext(null);
 const preventRoutes = ['/login', '/register', '/signout', '/404', '/500'];
 
 export default function AuthContextProvider({ children }) {
-	const {setErrorStatusCode} = useErrorStatus();
+	const {showError} = useErrorContext();
 	const [user, setUser] = useState(null);
 	const isAuthenticated = user && !user.guest;
 	
@@ -20,7 +20,7 @@ export default function AuthContextProvider({ children }) {
 				path: 'auth/user',			
 			}).then((response) => {
 				if(response.error && response.code) {
-					return setErrorStatusCode(response.code);
+					return showError(response.code);
 				}		
 				
 				const user = response.data;
@@ -59,7 +59,7 @@ export default function AuthContextProvider({ children }) {
 			if(response.code === 409) {
 				return response;
 			} else {
-				return setErrorStatusCode(response.code)
+				return showError(response.code)
 			}
         }
         
@@ -77,13 +77,12 @@ export default function AuthContextProvider({ children }) {
 			  body: JSON.stringify(user)
 			}
 		});
-	
 		
 		if(response.error && response.code) {
 			if(response.code === 401) {
 				return response;
-			} else {
-				return setErrorStatusCode(response.code)
+			} else {				
+				return showError(response.code)
 			}
         }
         
@@ -102,7 +101,7 @@ export default function AuthContextProvider({ children }) {
 		});
 
 		if(response.error && response.code) {			
-			return setErrorStatusCode(response.code)
+			return showError(response.code)
         }
 	}
 
