@@ -6,11 +6,11 @@ import Button from "../../../Button"
 import Post from "../..";
 
 import { fetchAction, useQuery } from "../../../api/api";
-import { useErrorStatus } from "../../../../contexts/ErrorContext";
+import { useErrorContext } from "../../../../contexts/ErrorContext";
 
 const Comment = ({ postId, totalComments, setTotalComments, hideModal }) => {
 
-  const { setErrorStatusCode } = useErrorStatus();
+  const { showError } = useErrorContext();
   const [message, setMessage] = useState('');
   const [counter, setCounter] = useState(0);
   const [error, setError] = useState(null);  

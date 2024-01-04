@@ -157,7 +157,7 @@ const Profile = ({user, timelineUser, setModal}) => {
 
 const Toolbar = ({user, timelineUser}) => {
 
-  const {setErrorStatusCode} = useErrorStatus();
+  const {showError} = useErrorContext();
   const [invite,setInvite] = useState(null);
 
   const sameUser = (user.id === timelineUser.id);  
@@ -167,14 +167,11 @@ const Toolbar = ({user, timelineUser}) => {
 
       const response = await fetchAction({
         path: `friends/${timelineUser.id}/invites`,
-        options: {
-          body: JSON.stringify(timelineUser)
-        }
       });
 
       console.log(response)
       if(response.error && response.code) {
-        return setErrorStatusCode(response.code);
+        return showError(response.code);
       }
       
       const data = response.data;
@@ -197,7 +194,7 @@ const Toolbar = ({user, timelineUser}) => {
     });
 
     if(response.error && response.code) {
-      return setErrorStatusCode(response.code);
+      return showError(response.code);
     }
     
     const data = response.data;
@@ -218,7 +215,7 @@ const Toolbar = ({user, timelineUser}) => {
       });
 
       if(response.error && response.code) {
-        return setErrorStatusCode(response.code);
+        return showError(response.code);
       }
       
       const data = response.data;
@@ -239,7 +236,7 @@ const Toolbar = ({user, timelineUser}) => {
     });
 
     if(response.error && response.code) {
-      return setErrorStatusCode(response.code);
+      return showError(response.code);
     }
     
     const data = response.data;

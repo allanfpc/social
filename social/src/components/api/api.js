@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useErrorStatus } from "../../contexts/ErrorContext";
+import { useErrorContext } from "../../contexts/ErrorContext";
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL;
 
 export function useQuery({path, options = {}}) {
-    const { setErrorStatusCode } = useErrorStatus();
+    const { showError } = useErrorContext();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,14 +27,15 @@ export function useQuery({path, options = {}}) {
                 credentials: "include",
                 ...options,
             })
-              .then(response => {                
-                if(!response.ok) {
-                    setErrorStatusCode(response.status);
+              .then(response => {
+                if(!response.ok) {                   
+                    showError(response.status);
+                    return null
                 }
-    
+
                 if(response.status === 204) {
                     return null;
-                } else {                    
+                } else {
                     return response.json();
                 }
                 

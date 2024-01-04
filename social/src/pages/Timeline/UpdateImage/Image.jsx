@@ -21,7 +21,7 @@ const ImageContainer = ({image, type, token, onImageChange, fileUpload}) => {
           console.log(response);
 
           if(response.error && response.code) {
-            return setErrorStatusCode(response.code);
+            return showError(response.code);
           }
           
           const data = response.data;

@@ -1,58 +1,85 @@
-import {useState, useEffect, useMemo, createContext, useContext} from 'react';
+import {useState, useEffect, useMemo, createContext, useContext, lazy, Suspense} from 'react';
 
-export const ErrorStatusContext = createContext();
+const ToastError = lazy(() => import('../components/Error/ToastError'));
+const CreateModal = lazy(() => import('../components/Modal').then(module => ({ default: module.CreateModal })));
 
-export const ErrorHandler = ({ children }) => {  
-  console.log('handler')
-  const [errorStatusCode, setErrorStatusCode ] = useState();
+const initialState = {
+  showError: () => {},
+  hideError: () => {},
+  store: {},
+};
 
-  useEffect(() => {
-    // Listen for changes to the current location.
-    const unlisten = (() => 
-      setErrorStatusCode(undefined)
+const ERROR_COMPONENTS = {
+  "TOAST_ERROR": ToastError,
+  "401": CreateModal
+};
+
+const ErrorStatusContext = createContext(initialState);
+
+export const ErrorHandler = ({ children }) => {
+  const [store, setStore] = useState();
+  const { modalType, modalProps } = store || {};
+
+  const showError = (modalType, modalProps) => {
+    setStore({
+      ...store,
+      modalType,
+      modalProps,
+    });
+  };
+
+  const hideError = () => {
+    setStore({
+      ...store,
+      modalType: null,
+      modalProps: {},
+    });
+  };
+
+  const renderComponent = () => {
+
+    if(modalType == "401") {
+      return location.assign("/login");
+    }
+
+    if(modalType == "404") {
+      return location.assign("/404");
+    }
+
+    if(modalType == "500") {
+      return location.assign("/500");
+    }
+
+    const ErrorComponent = ERROR_COMPONENTS[modalType];
+
+    if (!modalType || !ErrorComponent) {
+      return null;
+    }
+
+    return (
+      <Suspense>
+        <ErrorComponent id="error" {...modalProps} />
+      </Suspense>
     );
-    // cleanup the listener on unmount
-    return unlisten;
-  }, [])
-  
-
-  const renderContent = () => {    
-    console.log('errorStatusCode: ', errorStatusCode);
-    if(errorStatusCode === 401) {      
-      // const x = scrollX
-      // const y = scrollY
-      
-      // window.history.replaceState({login: 'need', scroll: {x, y} }, document.title, window.location.pathname);      
-      // window.location.reload(false)
-      return <div>asdsad</div>;
-      
-    }
-
-    if (errorStatusCode === 404) {
-      return <Page404 />
-    }
-
-    if(errorStatusCode === 500) {
-      return <Page500 />
-    }
-
-    return children;
   }
   
   // We wrap it in a useMemo for performance reasons. More here:
   // https://kentcdodds.com/blog/how-to-optimize-your-context-value/
   const contextPayload = useMemo(
-    () => ({ setErrorStatusCode }), 
-    [setErrorStatusCode]
+    () => ({ store, showError, hideError }), 
+    [store, showError, hideError]
   );
   
   // We expose the context's value down to our components, while
   // also making sure to render the proper content to the screen 
+  const exceptionChildren = ["404", "500", "401"]
+
   return (
     <ErrorStatusContext.Provider value={contextPayload}>
-      {renderContent()}
+      {renderComponent()}
+      {!exceptionChildren.includes(modalType) && children}
     </ErrorStatusContext.Provider>
   )
 }
 
-export const useErrorStatus = () => useContext(ErrorStatusContext);
+export const useErrorContext = () => useContext(ErrorStatusContext);

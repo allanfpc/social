@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 
-const ErrorFallback = lazy(() => import('../components/Error/ErrorFallback'));
+const ErrorRoute = lazy(() => import('../components/Error/ErrorRoute'));
 
 export default function route() {
 	return [
@@ -19,7 +19,7 @@ export default function route() {
 			},
 			{
 				path: `/users/:nickname`,				
-				errorElement: <Suspense><ErrorFallback/></Suspense>,
+				errorElement: <Suspense><ErrorRoute/></Suspense>,
 				async loader({ request, params }) {
 					let { default: loader } = await import("../pages/Timeline");
 					return loader({ request, params });
@@ -27,8 +27,8 @@ export default function route() {
 				lazy: () => import("../pages/Timeline"),
 			},
 			{
-				path: "/post/:post_id/status",				
-				errorElement: <Suspense><ErrorFallback /></Suspense>,
+				path: "/post/:post_id/status",
+				errorElement: <Suspense><ErrorRoute/></Suspense>,
 				async loader({ request, params }) {					
 					let { default: loader } = await import("../pages/Status");
 					return loader({ request, params });
