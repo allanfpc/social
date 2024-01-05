@@ -51,9 +51,82 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
                 setIsLiked(!isLiked);
                 setTotalLikes(!isLiked ? totalLikes + 1 : totalLikes - 1);
             }
+        }        
+    }  
+
+    const messageValidation = (message) => {
+        if(message.length === 0) {
+            createError({error: 'Please comment something'});
+            return false;
+        }
+    
+        const regex = /[\p{L}]?.+/mgiu;
+    
+        const match = regex.test(message);
+
+        if(!match) {
+          createError({error: 'Provide valid characters'});
+          return false;
+        }
+
+        return true;
+    }
+
+    const comment = async () => {
+        const message = sessionStorage.getItem('comment_text') || '';     
+
+        if(!messageValidation(message)) {
+            return;
+        }
+
+        const response = await fetchAction({
+          path: `posts/${postId}/comments`,
+          options: {
+            method:  'POST',
+            body: JSON.stringify({comment: message})
+          }
+        });
+    
+        if(response.error && response.code) {
+            return showError(response.code);
         }
         
-    }  
+        const data = response.data;
+    
+        if(data.success) {
+          sessionStorage.removeItem('comment_text');
+          setTotalComments(totalComments + 1);
+          hideModal();
+        }
+      }
+    
+      const share = async () => {
+        const message = sessionStorage.getItem('share_text') || '';
+
+        if(!messageValidation(message)) {
+            return;
+        }
+
+        const response = await fetchAction({
+          path: `posts/${postId}/shares`,
+          options: {
+            method:  'POST',
+            body: JSON.stringify({message})
+          }
+        });
+    
+        if(response.error && response.code) {
+            return showError(response.code);
+        }
+    
+        const data = response.data;
+    
+        if(data.success) {
+          sessionStorage.removeItem('share_text');
+          setTotalShares(totalShares + 1);
+          hideModal();
+        }
+      }
     
     const openShareModal = (e) => {
         e.preventDefault();
@@ -61,12 +134,15 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({ elem:      
+            createModal({
+                elem:
                 <Suspense fallback={null}>
                     <Share postId={postId} totalShares={totalShares} setTotalShares={setTotalShares} hideModal={hideModal} />
-                </Suspense>          
+                </Suspense>,
+                actions: <Button key="share" title="Share" onClick={share} />,                
+                clear: ['share_text']
             })
-        }        
+        }
     }
 
     const openCommentModal = (e) => {
@@ -75,10 +151,13 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
         if(!isAuthenticated) {
             createModal();
         } else {
-            createModal({elem: 
+            createModal({
+                elem: 
                 <Suspense fallback={null}>
                     <Comment postId={postId} totalComments={totalComments} setTotalComments={setTotalComments} hideModal={hideModal} />
-                </Suspense>               
+                </Suspense>,
+                actions: <Button key="comment" title="Comment" onClick={comment} />,
+                clear: ['comment_text']
             })
         }
     }
