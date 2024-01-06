@@ -88,6 +88,7 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
               )}
               {(images && !noAlbum) && (
                 <Album
+                  maxWidth={maxWidth}
                   post={post}
                   images={images}
                   isVisible={isVisible}
