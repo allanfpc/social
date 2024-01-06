@@ -140,7 +140,6 @@
 .column {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 }
 
 .flex {
@@ -1890,6 +1889,16 @@ em-emoji-picker {
     --font-label-weight: 500;
     --font-label-weight-prominent: 700;
   }
+  section.image .album-max-width {
+    max-width: 580px;
+  }
+  .modal__content {
+    max-width: 600px;
+  }
+  .modal__body .album-max-width {
+    max-width: 340px;
+    margin: 0 auto;
+  }
 
   .user-info {
     max-width: 320px;
@@ -1903,3 +1912,4 @@ em-emoji-picker {
   }
   
 }
+

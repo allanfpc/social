@@ -49,6 +49,7 @@ const Comment = ({ postId }) => {
         {post.length > 0 && (
           <Post
             post={post[0]}
+            maxWidth
           />
         )}
       </div>

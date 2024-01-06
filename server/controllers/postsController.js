@@ -399,9 +399,27 @@ async function processFile(req, res, next, postId) {
 		const promises = [];
 
 		try {
+			function checkImgAnimation(buffer) {
+				const binaryString = String.fromCharCode.apply(
+					this,
+					new Uint8Array(buffer).slice(0, 100)
+				);
+
+				if (
+					binaryString.indexOf("ANIM") !== -1 ||
+					binaryString.indexOf("GIF89a") !== -1
+				) {
+					return true;
+				}
+
+				return false;
+			}
+
+			const anim = checkImgAnimation(file.buffer);
+
 			for (const size in sizes) {
 				promises.push(
-					sharp(file.buffer)
+					sharp(file.buffer, { animated: anim })
 						.resize(sizes[size])
 						.toFile(`../social/uploads/${file.randomId}-${size}.${file.ext}`)
 				);
@@ -419,9 +437,7 @@ async function processFile(req, res, next, postId) {
 
 	try {
 		for (const [index, file] of Object.entries(files)) {
-			if (file.buffer) {
-				resizePromises.push(resizeFile(file, index));
-			}
+			resizePromises.push(resizeFile(file, index));
 		}
 		await Promise.all(resizePromises);
 
@@ -434,7 +450,7 @@ async function processFile(req, res, next, postId) {
 async function insertPostFiles(postId, files) {
 	const errorFiles = [];
 
-	const query = `insert into posts_img(img_id, post_id, img, ext, responsive, sizes) values(?, ?, ?, ?, ?, ?, ?)`;
+	const query = `insert into posts_img(img_id, post_id, img, ext, responsive, sizes) values(?, ?, ?, ?, ?, ?)`;
 
 	for (const file of files) {
 		const [result] = await db.query(query, [
