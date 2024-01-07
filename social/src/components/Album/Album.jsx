@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useGlobalModalContext } from "../../contexts/ModalContext";
-const AlbumImage = ({ src, post, maxWidth, index, onClick }) => {  
+const AlbumImage = ({ src, post, index, onClick }) => {  
   const {showModal} = useGlobalModalContext();
 
   const handleImageClick = (e) => {
@@ -8,6 +8,7 @@ const AlbumImage = ({ src, post, maxWidth, index, onClick }) => {
     e.preventDefault();
     
     showModal("STATUS_MODAL", {
+      restoreScroll: {y: window.scrollY},
       post,
       index
     });

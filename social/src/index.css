@@ -235,6 +235,11 @@ body {
   color: var(--text-color-base);
 }
 
+body.modal-open {
+  overflow-y: hidden;
+  padding-right: 15px
+}
+
 #root, #root > div {
   display: flex;
   flex-grow: 1;  
@@ -1025,6 +1030,7 @@ section.post .post-wrapper .container {
 .post {
   display: flex;
   position: relative;
+  min-height: 160px;
   flex-grow: 1;
 }
 
@@ -1354,10 +1360,6 @@ section.post .post-wrapper .container {
   font-size: var(--font-label-size);
 }
 
-.message {
-  height: 300px;
-}
-
 .messages {
   padding: 8px 12px;
   display: flex;
@@ -1529,25 +1531,27 @@ em-emoji-picker {
   z-index: 9999;
 }
 
-.modal:has(.modal__message) {
+.modal::-webkit-scrollbar {
+  display: none;
+}
+
+.modal:has(.modal__content) {
   padding: 12px 0;
 }
 
 .modal__content {  
-  padding-bottom: 12px;
   display: flex;
   width: 100%;  
-  max-width: 640px;  
+  height: 100%;
   flex-direction: column;  
   box-shadow: var(--elevation-1);
   background-color: var(--bg-color-base);
   border-radius: 4px;
-  border: 1px solid red;
+  border: 1px solid var(--border-color-base);
   
 }
 
 .modal__header {
-  margin-bottom: 12px;
   display: flex;
   justify-content: flex-end;
   box-shadow: var(--elevation-1);
@@ -1584,13 +1588,15 @@ em-emoji-picker {
   flex-grow: 1;
   flex-direction: row;
   justify-content: center; 
-  align-items: center;
   z-index: 0;
 }
 
 .modal__message {  
   margin-bottom: 12px;  
-  text-align: center; 
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 .modal__message .input-container {
@@ -1600,33 +1606,36 @@ em-emoji-picker {
 }
 
 .modal__actions {
-  margin-top: 12px;
   display: flex;  
 }
 
 .modal__actions > div {
-  padding: 0 12px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 0 3rem;
   display: flex;
   width: 100%;
   justify-content: flex-end;
 }
 
 .modal .close, .preview .close {
-  padding: 2px;  
-  line-height: 1px;
-  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 3px;  
   height: 32px;
-  text-align: center;
+  transition:  0.3s;
   color: var(--text-color-base);
-  background-color: rgb(101 101 101 / 29%);
-  border: 1px solid inherit;
+  box-shadow: var(--elevation-1);
+  background-color: var(--btn-color-alt);
+  border: 1px solid transparent;
   border-radius: 9999px;
   cursor: pointer;
 }
 
-.modal .close:hover {
-  border: 2px solid inherit;
-  background-color: rgb(101 101 101 / 45%);
+.modal .close:hover, .preview .close:hover {
+  background-color: var(--btn-highlight-alt) !important;
+  scale: 1.03;  
 }
 
 

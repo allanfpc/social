@@ -32,10 +32,10 @@ export const Modal = ({elem, onClose, message, fileUpload, actions, children}) =
             </div>
           )}
         </div>                    
-        {!elem && (
+        {actions && (
           <div className="modal__actions">    
             <div>
-              {actions.map((action) => (
+              {actions.map((action) => (                
                 action
               ))}
             </div>
