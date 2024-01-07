@@ -26,6 +26,12 @@ const Actions = ({postId, liked, initialTotalLikes, initialTotalComments, initia
         })
     };
 
+    const createError = (props) => {
+        showModal("TOAST_ERROR", {
+            ...props
+        })
+    };
+
     const like = async (e) => {
         e.preventDefault();
         if(!isAuthenticated) {
