@@ -5,9 +5,12 @@ import { useGlobalModalContext } from "../../contexts/ModalContext";
 export const CreateModal = () => {
  const { hideModal, store } = useGlobalModalContext();
  const { modalProps } = store || {}; 
- const { title, confirmBtn, elem, message, clear, actions } = modalProps || {};
+ const { title, confirmBtn, elem, message, clear, fileUpload, actions, restoreScroll } = modalProps || {};
 
  const handleModalToggle = () => {
+  if(fileUpload) {
+    fileUpload.value = '';
+  }
   hideModal();
  };
 
@@ -21,7 +24,9 @@ export const CreateModal = () => {
       actions={[
         actions
       ]}
+      restoreScroll={restoreScroll}
       clear={clear}
+      fileUpload={fileUpload}
     >
     </Modal>
  );

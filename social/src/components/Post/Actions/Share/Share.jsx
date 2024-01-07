@@ -23,15 +23,14 @@ const Share = ({ postId }) => {
   return (
     <>
       <div className="modal__message">
-        <Textarea 
+        <Textarea
           type="text"
           onChange={handleMsgChange}
           value={message}
           maxlength={500}
           id="comment"
           name="comment"
-          placeholder="Write here..."
-          error={error}          
+          placeholder="Write here..."         
           autofocus
           counter          
         />        
@@ -50,11 +49,6 @@ const Share = ({ postId }) => {
             maxWidth      
           /> 
         )}     
-      </div>
-      <div className="modal__actions">    
-        <div>
-          <Button title="Share" onClick={share} />
-        </div>
       </div>
     </>
   )

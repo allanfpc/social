@@ -32,8 +32,7 @@ const Comment = ({ postId }) => {
           maxlength={500}
           id="comment"
           name="comment"
-          placeholder="Write here..."
-          error={error}          
+          placeholder="Write here..."         
           autofocus
           counter
         />        
@@ -52,12 +51,7 @@ const Comment = ({ postId }) => {
             maxWidth
           />
         )}
-      </div>
-      <div className="modal__actions">    
-        <div>
-          <Button title="Comment" onClick={comment} />
-        </div>
-      </div>
+      </div>      
     </>
   )
 }
