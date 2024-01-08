@@ -9,89 +9,120 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { fetchAction, useQuery } from "../../components/api/api";
 import { useErrorContext } from "../../contexts/ErrorContext";
 
-const Home = () => {
-  const {user, isAuthenticated, token} = useAuthContext();  
-  const [modal, setModal] = useState(null);
-  const [loading, setLoading] = useState(null);
+export const Home = () => {  
+  const {user, isAuthenticated} = useAuthContext();  
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [isVisible, setIsVisible] = useState(null);
+  const [previousData, setPreviousData] = useState([]);
+  const [page, setPage] = useState(1);  
+  const postsRef = useRef([]); 
+  const less = useRef(false);
+  
+  let limit = (previousData.length / 2) + 30;
+  let offset =  (previousData.length / 2) - 10; 
 
-  const [posts, setPosts] = useQuery({
-    path: 'posts',    
-    setLoading
+  const {data: posts, setData: setPosts, loading} = useQuery({
+    path: `posts?page=${page}`
   });
-  console.log('posts: ', posts)
+
+  useEffect(() => {
+    if(posts.rows && !less.current) {
+      setPreviousData([...previousData, ...posts.rows]);
+    }
+  }, [posts]);
+  
+  useEffect(() => {    
+    
+    const options = {
+      root: null,
+      rootMargin: "0px 0px 0px 0px",
+      threshold: 1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries;      
+      if(entry.isIntersecting) {        
+        setPreviousData(previousData.slice(0, -20));
+        offset = offset - 30;
+        less.current = true;        
+        setPage(page - 1);
+        observer.unobserve(entry.target);
+      }
+    }, options);
+
+    const postRef = postsRef.current[5] ?  postsRef.current[5] : null;
+
+    if(postRef && page > 1) {
+      observer.observe(postRef);
+    }
+
+    return () => {
+      if(postRef) {
+        observer.unobserve(postRef);
+      }
+    };
+  }, [previousData])
+
+  useEffect(() => {
+
+    function scrollAtBottom() {            
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;                
+      
+      if (scrollTop + windowHeight >= documentHeight) { 
+        setPage(page + 1);  
+        less.current = false;
+        window.scroll(0, window.scrollY - 10)
+      }
+    }
+    
+    function handleScroll(e) {
+      if((page * 20) < posts.total_posts) {
+        scrollAtBottom();         
+      }
+    }
+
+    document.addEventListener("scroll", handleScroll);
+
+    return () => {        
+        document.removeEventListener("scroll", handleScroll);
+    }
+  }, [page, posts]); 
 
   return (
-    <GlobalModal>
-      <Layout modal={modal} setModal={setModal}>
-        {user && (
-          <section className="user-info">
-            <div className="panel">
-              <div className="panel-container">
-                <div className='user'>
-                  <div className="user__header">
-                    <div>
-                      <User.Avatar img={{src: user.profile_img, alt: 'profile'}} nickname={user.nickname} />
-                    </div>
-                    <div>
-                      <User.Desc name={user.name} nickname={user.nickname} />
-                    </div>
-                  </div>
-                </div>
-                <div className="stats">
-                  
+    <>      
+      <section className="posts">
+        <div className="column">
+          {isAuthenticated && (<Postbox posts={posts} setPosts={setPosts} />)}
+          <div className="posts-wrapper">
+            <div className="title">
+              <h1>Trending posts</h1>
+            </div>            
+            {loading ? (
+              <div className="flex-center container">
+                <div className="loading">
+                  <span></span>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
-        <section className="posts">
-          <div className="flex-center">
-            <div className="column">
-              {user && (<Postbox posts={posts} setPosts={setPosts} token={token} />)}
-                <div className="posts-wrapper">
-                  {loading ? (
-                    <div className="flex-center container">
-                      <div className="loading">
-                        <span></span>
-                      </div>
-                    </div>
-                  ) : (!posts || posts.length === 0)
-                  ?
-                    (<div className="container">
-                      <span>No posts to show</span>
-                    </div>)
-                  : 
-                  posts.map((post) => (
-                    <Post          
-                      name={post.name}
-                      nickname={post.nickname}
-                      profile_img={post.profile_img}
-                      date={post.date}
-                      images={post.images}
-                      key={post.post_id}
-                      id={post.post_id}                    
-                      text={post.text}                    
-                      liked={post.liked}
-                      totalLikes={post.total_likes}
-                      totalComments={post.total_comments}
-                      totalShares={post.total_shares}
-                      setModal={setModal}
-                      actions
-                    />
-                  ))}               
-              </div>
-            </div>
+            ) :
+            previousData.slice(offset, limit).map((post, i) => (
+              <Post     
+                key={post.post_id}
+                ref={(el) => postsRef.current[i] = el}
+                post={post}
+                isVisible={isVisible}                    
+                actions
+              />
+            ))}
           </div>
-        </section>
-        {isAuthenticated && (
-          <Chat />
-        )}
-      </Layout>
-    </GlobalModal>
+        </div>
+      </section>      
+    </>
   )
 }
 
-const Postbox = ({posts, setPosts, token}) => {
+const Postbox = ({posts, setPosts}) => {
 
   const {showError} = useErrorContext();
 
