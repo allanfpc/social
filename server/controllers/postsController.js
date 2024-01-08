@@ -4,14 +4,6 @@ import db from "../config/db.js";
 
 import { ApiError, UploadError } from "../errors/error.js";
 
-// TIMELINE
-// CLEAN CODE
-
-// REUTILIZABLE FUNCTIONS ON BACKEND FOR RETURN ROWS ISOLATED...
-// IMPROVE UPLOAD ERROR CLASS FOR FILE UPLOADS
-// complete lazy loading component with isvisible
-// implement page system where necessary (Timeline..., comments)
-
 async function getAllPosts(req, res, next) {
 	const { id } = req.user;
 	const { page } = req.query;
