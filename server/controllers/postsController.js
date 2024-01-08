@@ -4,50 +4,68 @@ import db from "../config/db.js";
 
 import { ApiError, UploadError } from "../errors/error.js";
 
-async function getAllPosts(req, res, next) {
-	console.log("get posts");
-	const { id } = req.user;
+// TIMELINE
+// CLEAN CODE
 
-	const [query, place] = [
-		`
-        SELECT 
-            posts.*,
-            u.id,
-            u.name,
-            u.nickname,
-            u.profile_img,
-            DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
-            (select
-				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
-			from
-				posts_img			
-            where
-				posts.post_id = posts_img.post_id ) AS images,
-            (select count(comment) from comments where comments.post_id = posts.post_id) as total_comments, 
-            (select count(message) from shares where shares.post_id = posts.post_id) as total_shares, 
-            (select count(post_id) from likes where likes.post_id = posts.post_id AND likes.liked = 1) as total_likes,
-            (select liked from likes where likes.user_id = ? AND liked = 1 AND posts.post_id = likes.post_id) as liked
-        FROM 
-            posts
-        LEFT JOIN 
-            users as u on user_id = u.id
-        WHERE 
-            posts.user_id != ?
-        ORDER BY
-            created_at desc
-        LIMIT 20 OFFSET 0;
-    `,
-		[id, id]
-	];
+// REUTILIZABLE FUNCTIONS ON BACKEND FOR RETURN ROWS ISOLATED...
+// IMPROVE UPLOAD ERROR CLASS FOR FILE UPLOADS
+// complete lazy loading component with isvisible
+// implement page system where necessary (Timeline..., comments)
+
+async function getAllPosts(req, res, next) {
+	const { id } = req.user;
+	const { page } = req.query;
+	const limit = 20;
+	const offset = page > 1 ? (page - 1) * limit : 0;
+
+	const totalQuery = `select count(*) as total_posts from posts where posts.user_id != ?`;
 
 	try {
+		const [totalResult] = await db.query(totalQuery, [id]);
+		const totalPosts = totalResult[0].total_posts;
+
+		const [query, place] = [
+			`
+			SELECT 
+				posts.*,
+				u.id,
+				u.name,
+				u.nickname,
+				u.profile_img,
+				DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,				
+				(select
+					JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
+				from
+					posts_img			
+				where
+					posts.post_id = posts_img.post_id ) AS images,			
+				(select count(comment) from comments where comments.post_id = posts.post_id) as total_comments, 
+				(select count(message) from shares where shares.post_id = posts.post_id) as total_shares, 
+				(select count(post_id) from likes where likes.post_id = posts.post_id AND likes.liked = 1) as total_likes,
+				(select liked from likes where likes.user_id = ? AND liked = 1 AND posts.post_id = likes.post_id) as liked
+			FROM 
+				posts
+			LEFT JOIN 
+				users as u on user_id = u.id
+			WHERE 
+				posts.user_id != ?
+			ORDER BY
+				created_at desc
+			LIMIT ? OFFSET ?;
+		`,
+			[id, id, limit, offset]
+		];
+
 		const [rows] = await db.query(query, place);
 
 		if (rows.length === 0) {
 			return res.status(204).end();
 		}
 
-		res.status(200).json(rows);
+		res.status(200).json({
+			total_posts: totalPosts,
+			rows
+		});
 	} catch (error) {
 		next(error);
 	}
