@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Actions from "./Actions"
 import Album from '../Album';
 import User from "../User";
 
-import { useGlobalModalContext } from "../../contexts/ModalContext";
+const Post = ({ postsRef, post, actions, noAlbum }, ref) => {
+	const navigate = useNavigate();
 
 const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
   const navigate = useNavigate();
@@ -111,4 +112,49 @@ const Post = ({postsRef, post, lazy, actions, noAlbum}) => {
   )  
 }
 
-export default Post;
+	return (
+		<div className="container">
+			<article onClick={(e) => handlePostClick(e)}>
+				<div ref={ref} className="post">
+					<div className="post-header">
+						<User.Avatar
+							img={{ src: profile_img, alt: name }}
+							nickname={nickname}
+						/>
+					</div>
+					<div className="post-body">
+						<User.Desc nickname={nickname} name={name} date={date} />
+						<div className="column post-body-content">
+							{text && (
+								<div className="message-wrapper">
+									<div className="message">
+										<p>{text}</p>
+									</div>
+								</div>
+							)}
+							{images && !noAlbum && (
+								<Album
+									maxWidth
+									post={post}
+									images={images}
+									isVisible={isVisible}
+								/>
+							)}
+						</div>
+						{actions && (
+							<Actions
+								postId={post_id}
+								liked={liked}
+								initialTotalLikes={total_likes}
+								initialTotalComments={total_comments}
+								initialTotalShares={total_shares}
+							/>
+						)}
+					</div>
+				</div>
+			</article>
+		</div>
+	);
+};
+
+export default forwardRef(Post);
