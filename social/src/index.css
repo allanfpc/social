@@ -1638,6 +1638,16 @@ em-emoji-picker {
   scale: 1.03;  
 }
 
+.modal.auth .modal__body > div  {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.auth .form-container {
+  border: none;
+}
+
 
 .error .input-container {
   border: 2px solid var(--alert-d-color-base) !important;  
