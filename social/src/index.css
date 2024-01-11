@@ -1681,35 +1681,16 @@ em-emoji-picker {
   scale: 1.03;  
 }
 
-.crop-container {
-  /* padding: 12px var(--spacing); */
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 1;
-}
-
-.crop {
-  height: 140px;
-  width: 100%;
-  position: absolute;
-  top: 50%;
-  left: 0;
-  border: 2px solid white;
-  background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: brightness(1);
-  z-index: 2;
-}
-
-.canvas-wrapper {
-  position: relative;
+.modal.auth .modal__body > div  {
   display: flex;
-  width: 100%;
-  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
+
+.modal.auth .form-container {
+  border: none;
+}
+
 
 .error .input-container {
   border: 2px solid var(--alert-d-color-base) !important;  

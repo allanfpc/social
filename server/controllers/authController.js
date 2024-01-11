@@ -6,8 +6,8 @@ import { ApiError, ValidationError } from "../errors/error.js";
 
 async function getUserBy(arg, getPass) {
 	const [query, place] = [
-		`select id, name, nickname, email ${
-			getPass ? ", password" : ""
+		`select id, name, nickname, email, profile_img, ${
+			getPass ? "password" : ""
 		} from users where email = ?`,
 		[arg]
 	];
@@ -71,7 +71,7 @@ async function login(req, res, next) {
 			return res.status(401).json({ error: "User not found" });
 		}
 
-		const { name, email, nickname, id, password } = user;
+		const { name, email, nickname, profile_img, id, password } = user;
 		const validate = await bcrypt.compare(inputPass, password);
 
 		if (!validate) {
@@ -83,7 +83,7 @@ async function login(req, res, next) {
 			);
 		}
 
-		const token = generateToken({ id, name, nickname, email });
+		const token = generateToken({ id, name, nickname, profile_img, email });
 
 		res.cookie("token", token, {
 			maxAge: 60 * 60 * 1000,
@@ -96,7 +96,7 @@ async function login(req, res, next) {
 			success: true,
 			message: "Logged",
 			token,
-			user: { id, name, nickname, email }
+			user: { id, name, nickname, profile_img, email }
 		});
 	} catch (error) {
 		next(error);
