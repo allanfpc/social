@@ -1,61 +1,80 @@
 import { useState, useEffect } from "react";
-import { useErrorContext } from "../../contexts/ErrorContext";
+import { CustomError, useErrorContext } from "../../contexts/ErrorContext";
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL;
 
-export function useQuery({path, options = {}}) {
-    const { showError } = useErrorContext();
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+export function useQuery({ path, options = {} }) {
+	const { showError } = useErrorContext();
+	const [data, setData] = useState([]);
+	const [loading, setLoading] = useState(true);
 
-    const headers = options.headers == {} || {
-        "Content-Type": "application/json",
-        ...options.headers
-    };
+	const headers = options.headers == {} || {
+		"Content-Type": "application/json",
+		...options.headers
+	};
 
-    useEffect(() => {
-        const cachedData = localStorage.getItem(path);
+	useEffect(() => {
+		if (loading) {
+			document.body.classList.add("loading");
+		}
 
-        if(cachedData) {
-            setData(JSON.parse(cachedData));
-            setLoading(false);
-        } else {
-            fetch(`${SERVER_BASE_URL}/${path}`, {    
-                method: options.method || "GET",
-                headers: headers,
-                credentials: "include",
-                ...options,
-            })
-              .then(response => {
-                if(!response.ok) {                   
-                    showError(response.status);
-                    return null
-                }
+		return () => {
+			document.body.classList.remove("loading");
+		};
+	}, [loading]);
 
-                if(response.status === 204) {
-                    return null;
-                } else {
-                    return response.json();
-                }
-                
-              })
-              .then((data) => {
-                console.log('datA: ', data);
-                if(data) {
-                    setData(data);              
-                    localStorage.setItem(path, JSON.stringify(data));
-                }
-              }).finally(() => {            
-                setLoading(false);
-              })
-        }
+	useEffect(() => {
+		const abortController = new AbortController();
+		const signal = abortController.signal;
+		const lastOpt = {
+			method: options.method || "GET",
+			headers,
+			credentials: "include",
+			...options,
+			signal
+		};
+		const fetchData = async () => {
+			try {
+				const response = await fetch(`${SERVER_BASE_URL}/${path}`, lastOpt);
 
-        
-      }, [path]);
+				if (response.status === 204) {
+					if (!signal.aborted) {
+						setLoading(false);
+					}
+					return;
+				}
 
-    return {data, setData, loading, error};
-    
+				if (!response.ok) {
+					throw new CustomError(response.status, response.statusText);
+				}
+
+				const data = await response.json();
+
+				if (!signal.aborted) {
+					setData(data);
+
+					// sessionStorage.setItem(path, JSON.stringify({ data, page: 1 }));
+					// sessionStorage.setItem('storedPaths', JSON.stringify([...JSON.parse(storedPaths || '[]'), path]))
+				}
+			} catch (error) {
+				if (error.name !== "AbortError") {
+					showError(error, undefined, fetchData);
+				}
+			} finally {
+				if (!signal.aborted) {
+					setLoading(false);
+				}
+			}
+		};
+
+		fetchData();
+
+		return () => {
+			abortController.abort();
+		};
+	}, [path]);
+
+	return { data, setData, loading };
 }
 
 export async function fetchAction({path, options = {}}) {

@@ -62,7 +62,14 @@ export default function route() {
 			async lazy() {
 				let { Page404 } = await import("../pages/Error/404");
 				return { Component: Page404 };
-			},
-		}		
+			}
+		},
+		{
+			path: "/403",
+			async lazy() {
+				const { Page403 } = await import("../pages/Error/403");
+				return { Component: Page403 };
+			}
+		}
 	];
 }

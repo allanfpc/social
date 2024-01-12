@@ -1,32 +1,29 @@
-
 import { useEffect } from "react";
 import { useErrorContext } from "../../../contexts/ErrorContext";
 
-const ToastError = () => {
-    const { hideError, store } = useErrorContext();
-    const { modalProps } = store || {}; 
-    const { error, files } = modalProps || {};
-    
-    useEffect(() => {
-        let timeoutId
-        if(error) {
-            timeoutId = setTimeout(() => {
-                hideError();
-            }, 10000)
-        }
+export const ToastError = () => {
+	const { hideError, store } = useErrorContext();
+	const { errorProps } = store || {};
+	const { error, files } = errorProps || {};
 
-        return () => {
-            clearTimeout(timeoutId);
-        }
-    }, [error])
+	useEffect(() => {
+		let timeoutId;
+		if (error) {
+			timeoutId = setTimeout(() => {
+				hideError();
+			}, 10000);
+		}
 
-    return (
-        <div className="error-toast-container">
-            <div className="error-toast">
-                <span>{`${error}`}</span>
-            </div>
-        </div>
-    )
-}
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [error]);
 
-export default ToastError
+	return (
+		<div className="error-toast-container">
+			<div className="error-toast">
+				<span>{`${error}`}</span>
+			</div>
+		</div>
+	);
+};

@@ -1,5 +1,16 @@
 import { useState, createContext, useContext, lazy, Suspense } from "react";
 
+export class CustomError extends Error {
+	constructor(code, message) {
+		super(message);
+		console.log(code, message);
+
+		this.code = code;
+
+		Object.setPrototypeOf(this, CustomError.prototype);
+	}
+}
+
 const ToastError = lazy(() =>
 	import("../components/Error/ToastError").then((module) => ({
 		default: module.ToastError
@@ -24,57 +35,72 @@ const ERROR_COMPONENTS = {
 };
 
 const ErrorContext = createContext(initialState);
-
+let retry = true;
 export const ErrorContextProvider = ({ children }) => {
 	const [store, setStore] = useState();
-	const { modalType, modalProps } = store || {};
+	const { error, errorProps, cb } = store || {};
 
-	const showError = (modalType, modalProps) => {
+	const showError = (error, errorProps, cb) => {
 		setStore({
 			...store,
-			modalType,
-			modalProps
+			error,
+			errorProps,
+			cb
 		});
 	};
 
 	const hideError = () => {
 		setStore({
 			...store,
-			modalType: null,
-			modalProps: {}
+			error: null,
+			errorProps: {}
 		});
 	};
 
 	const renderComponent = () => {
-		if (modalType === 404) {
-			return location.assign("/404");
+		const redirectRoutes = [403, 404, 500];
+
+		if (error instanceof CustomError) {
+			const code = error.code;
+			if (code && redirectRoutes.includes(code)) {
+				return location.assign(`/${code}`);
+			}
 		}
 
-		if (modalType === 500) {
-			return location.assign("/500");
+		if (error instanceof TypeError) {
+			if (cb && retry) {
+				setTimeout(() => {
+					cb();
+					retry = false;
+				}, 3000);
+			} else {
+				showError("TOAST_ERROR", {
+					error: "NetworkError, try again later"
+				});
+			}
 		}
 
-		const ErrorComponent = ERROR_COMPONENTS[modalType];
+		const ErrorComponent = ERROR_COMPONENTS[error?.code || error];
 
-		if (!modalType || !ErrorComponent) {
+		if (!error || !ErrorComponent) {
 			return null;
 		}
 
 		return (
 			<Suspense>
-				<ErrorComponent id="error" {...modalProps} />
+				<ErrorComponent id="error" {...errorProps} />
 			</Suspense>
 		);
 	};
 
 	// We expose the context's value down to our components, while
 	// also making sure to render the proper content to the screen
-	const exceptionChildren = [404, 500];
+	const exceptionChildren = [403, 404, 500];
 
 	return (
 		<ErrorContext.Provider value={{ store, showError, hideError }}>
 			{renderComponent()}
-			{!exceptionChildren.includes(modalType) && children}
+			{!exceptionChildren.includes(error) && children}
 		</ErrorContext.Provider>
 	);
 };
