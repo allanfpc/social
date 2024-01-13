@@ -4,6 +4,7 @@ import multer from "multer";
 import {
 	updateUser,
 	getUserBy,
+	findUsers,
 	createMessage,
 	fetchMessagesBetweenUsers
 } from "../controllers/userController.js";
@@ -28,18 +29,29 @@ const storage = multer.diskStorage({
 const upload = multer({ storage }).single("file");
 
 router.get("/users", async (req, res, next) => {
-	const username = req.query.username;
-	if (username) {
-		try {
+	const { username, search } = req.query;
+
+	try {
+		if (username) {
 			const user = await getUserBy({ nickname: username });
 			if (!user) {
 				throw new ApiError("NOT_FOUND", 404, "Not Found", true);
 			}
 
 			res.status(200).json(user);
-		} catch (error) {
-			next(error);
 		}
+
+		if (search) {
+			const foundUsers = await findUsers(search);
+
+			if (foundUsers.length === 0) {
+				return res.status(204).end();
+			}
+
+			res.status(200).json(foundUsers);
+		}
+	} catch (error) {
+		next(error);
 	}
 });
 
