@@ -24,6 +24,20 @@ async function getUserBy(arg) {
 	}
 }
 
+async function findUsers(text) {
+	const [query, place] = [
+		"SELECT * FROM users WHERE nickname LIKE ? OR name LIKE ? LIMIT 20 OFFSET 0",
+		[`%${text}%`, `%${text}%`]
+	];
+
+	try {
+		const [rows] = await db.query(query, place);
+		return rows;
+	} catch (error) {
+		throw new ApiError("INTERNAL_ERROR", 500, "Internal Server Error", false);
+	}
+}
+
 async function updateUser(req, res, next) {
 	const { id } = req.user;
 	const img = req.file;
@@ -109,4 +123,10 @@ export async function getMessagesBetweenUsers(
 	}
 }
 
-export { updateUser, getUserBy, createMessage, fetchMessagesBetweenUsers };
+export {
+	updateUser,
+	getUserBy,
+	findUsers,
+	createMessage,
+	fetchMessagesBetweenUsers
+};
