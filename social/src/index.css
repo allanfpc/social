@@ -584,6 +584,39 @@ input {
   font-size: 15px;  
 }
 
+input[type="checkbox"], input[type="radio"] {
+  padding: 2px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  color: var(--stroke-color-base);
+  background-color: white;
+  border: 1px solid var(--border-color-base);
+  border-radius: 2px;
+}
+
+input[type="checkbox"] {
+  line-height: 14px;
+  text-align: center;
+  font-size: 16px;
+}
+
+input[type="radio"] {  
+  line-height: 10px;
+  text-align: center;
+  font-size: 24px;
+  border-radius: 9999px;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "\02713";  
+}
+
+input[type="radio"]:checked::after {
+  content: "\25CF";
+  color: var(--stroke-color-base);  
+}
+
 .input-container:hover {
   background-color: #3f3f3f40;
 }
@@ -1100,6 +1133,50 @@ section.post .post {
   font-family: "Freight Sans Medium", Helvetica, Arial, sans-serif;
   text-align: start;
   font-size: 1rem;
+}
+
+.menu-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.menu {
+  margin-top: 4px;
+  position: absolute;
+  right: 4px;
+  top: 42px;
+  max-width: 120px;
+  width: 100%;
+  box-shadow: var(--elevation-1);  
+  background-color: var(--bg-color-base);
+  z-index: 2;
+}
+
+.menu ul {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color-base);
+  border-radius: 4px;
+}
+
+.menu ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  height: 40px;
+  color: var(--text-color-base);
+  transition: all .2s cubic-bezier(.2,0,0,1);
+  font-weight: 400;
+}
+
+.menu ul li:hover {
+  background: var(--highlight-color-base);
+}
+
+.menu ul li.delete {
+  color: var(--alert-d-color-base);
 }
 
 .float-link {
