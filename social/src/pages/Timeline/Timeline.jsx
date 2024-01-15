@@ -7,8 +7,10 @@ import Layout from "../../layouts/Layout";
 import User from "../../components/User";
 import Post from "../../components/Post";
 import Button from "../../components/Button";
+import Dropdown from "../../components/Dropdown";
 
 import { useAuthContext } from "../../contexts/AuthContext"
+import { useErrorContext } from "../../contexts/ErrorContext";
 import { fetchAction, useQuery } from "../../components/api/api";
 import { useErrorStatus } from "../../contexts/ErrorContext";
 import UpdateImage from "./UpdateImage";
@@ -146,132 +148,179 @@ const Profile = ({user, timelineUser, setModal}) => {
               )}
             </User.Avatar>
           </div>
-        </div>        
-      </div>      
-      {(user && !sameUser) && (
-        <Toolbar user={user} timelineUser={timelineUser} />
-      )}       
-    </div>
-  )
-}
+			</div>
+			<Toolbar user={user} timelineUser={timelineUser} />
+		</div>
+	);
+};
 
-const Toolbar = ({user, timelineUser}) => {
+const Toolbar = ({ user, timelineUser }) => {
+	const { showError } = useErrorContext();
+	const { showModal } = useGlobalModalContext();
+	const [blocked, setBlocked] = useState(timelineUser.blocked);
+	const [invite, setInvite] = useState(null);
 
-  const {showError} = useErrorContext();
-  const [invite,setInvite] = useState(null);
+	const sameUser = user.id === timelineUser.id;
 
-  const sameUser = (user.id === timelineUser.id);  
+	useEffect(() => {
+		const fetchInvite = async () => {
+			const { data, error } = await fetchAction({
+				path: `friends/${timelineUser.id}/invites`
+			});
 
-  useEffect(() => {
-    const fetchInvite = async () => {
+			if (error) {
+				return error.code === 401 ? showModal(401) : showError(error);
+			}
 
-      const response = await fetchAction({
-        path: `friends/${timelineUser.id}/invites`,
-      });
+			if (data) {
+				setInvite(data);
+			}
+		};
 
-      console.log(response)
-      if(response.error && response.code) {
-        return showError(response.code);
-      }
-      
-      const data = response.data;
+		fetchInvite();
+	}, []);
 
-      if(data) {
-        setInvite(data);
-      }      
-    };
+	const inviteFriend = async () => {
+		const { data, error } = await fetchAction({
+			path: `friends/${timelineUser.id}/invites`,
+			options: {
+				method: "POST",
+				body: JSON.stringify(timelineUser)
+			}
+		});
 
-    fetchInvite();
-  }, []);
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
 
-  const inviteFriend = async () => {
-    const response = await fetchAction({
-      path: `friends/${timelineUser.id}/invites`,
-      options: {
-        method: 'POST',
-        body: JSON.stringify(timelineUser)
-      }
-    });
+		if (data && data.success) {
+			setInvite({ status: "pending" });
+		}
+	};
 
-    if(response.error && response.code) {
-      return showError(response.code);
-    }
-    
-    const data = response.data;
+	const acceptInvite = async () => {
+		const { data, error } = await fetchAction({
+			path: `friends/${timelineUser.id}/invites/${invite.id}`,
+			options: {
+				method: "PUT",
+				body: JSON.stringify({ status: "accepted", user: timelineUser })
+			}
+		});
 
-    if(data.success) {
-      setInvite({status: 'pending'});
-    }
-       
-  }
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
 
-  const updateInvite = async (status) => {    
-      const response = await fetchAction({
-        path: `friends/${timelineUser.id}/invites/${invite.id}`,
-        options: {
-          method: 'PUT',
-          body: JSON.stringify({status: status, user: timelineUser})
-        }
-      });
+		if (data && data.success) {
+			setInvite("accepted");
+		}
+	};
 
-      if(response.error && response.code) {
-        return showError(response.code);
-      }
-      
-      const data = response.data;
-  
-      if(data && data.success) {
-        setInvite(status);
-      }
-  }
+	const cancelInvite = async () => {
+		const { data, error } = await fetchAction({
+			path: `friends/${timelineUser.id}/invites/${invite.id}`,
+			options: {
+				method: "DELETE"
+			}
+		});
 
-  const cancelInvite = async () => { 
-      
-    const response = await fetchAction({
-      path: `friends/${timelineUser.id}/invites/${invite.id}`,
-      options: {
-        method: 'DELETE',
-        body: JSON.stringify(timelineUser)
-      }
-    });
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
 
-    if(response.error && response.code) {
-      return showError(response.code);
-    }
-    
-    const data = response.data;
+		if (data && data.success) {
+			setInvite(null);
+		}
+	};
 
-    if(data && data.success) {
-      setInvite(null);
-    }
-    
-  }
+	const undoFriend = () => {
+		showModal("CREATE_MODAL", {
+			action: cancelInvite,
+			message: "Are you sure you want to undo this friend request?"
+		});
+	};
 
-  return (
-    <div className="toolbar">
-      {!sameUser && (
-        invite ? (
-          invite.status === 'pending' && (
-            invite.action_user_id === timelineUser.id ? (
-              <div>
-                <Button title="accept" onClick={() => updateInvite('accepted')} />
-                <Button title="reject" onClick={() => updateInvite('rejected')} />
-              </div> 
-            ) : (
-              <div>
-                <Button title="Cancel Invite" onClick={cancelInvite} />
-              </div>
-            )
-          )
-        ) : (
-          <div>
-            <Button title="Send Invite" onClick={inviteFriend} />
-          </div>
-        )
-      )}
-    </div>
-  )
-}
+	const blockUser = async () => {
+		const block = async () => {
+			const { data, error } = await fetchAction({
+				path: `users/${timelineUser.id}/blocks`,
+				options: {
+					method: "POST"
+				}
+			});
 
+			if (error) {
+				return error.code === 401 ? showModal(401) : showError(error);
+			}
+
+			if (data && data.success) {
+				setBlocked(true);
+			}
+		};
+
+		showModal("CREATE_MODAL", {
+			action: block,
+			message: "Are you sure you want to block this user?"
+		});
+	};
+
+	const unblockUser = async () => {
+		const { data, error } = await fetchAction({
+			path: `users/${timelineUser.id}/blocks`,
+			options: {
+				method: "DELETE"
+			}
+		});
+
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
+
+		if (data && data.success) {
+			setBlocked(false);
+		}
+	};
+
+	return (
+		<div className="toolbar">
+			<div className="container">
+				<div>
+					<Dropdown>
+						<li>Edit</li>
+						<li>Report</li>
+						<li>
+							{blocked ? (
+								<Button title="Unblock" onClick={unblockUser} />
+							) : (
+								<Button title="Block" onClick={blockUser} />
+							)}
+						</li>
+						{invite?.status === "accepted" && (
+							<li onClick={undoFriend}>Desfazer amizade</li>
+						)}
+					</Dropdown>
+				</div>
+				{!sameUser &&
+					(invite ? (
+						invite.status === "pending" &&
+						(invite.action_user_id === timelineUser.id ? (
+							<div>
+								<Button title="accept" onClick={acceptInvite} />
+								<Button title="reject" onClick={cancelInvite} />
+							</div>
+						) : (
+							<div>
+								<Button title="Cancel Invite" onClick={cancelInvite} />
+							</div>
+						))
+					) : (
+						<div>
+							<Button title="Send Invite" onClick={inviteFriend} />
+						</div>
+					))}
+			</div>
+		</div>
+	);
+};
 
 export default Timeline
