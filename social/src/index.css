@@ -1581,10 +1581,17 @@ section.post .post {
 }
 
 .chat__list__users .desc {  
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
   font-size: var(--font-body-size);
   letter-spacing: var(--font-body-tracking);
   line-height: var(--font-body-lh);
   font-weight: var(--font-body-weight);
+}
+
+.chat__list__users .desc .chat-status::after {
+  content: "\25CF";
 }
 
 .chat__list__users .avatar {

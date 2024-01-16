@@ -95,10 +95,25 @@ const Chat = ({isExpanded, setIsChatExpanded}) => {
               {friends.map((friend, i) => (
                 <li key={i} onClick={() => setFriendInteract(friend)}>
                   <div className="user">
-                    <User.Avatar img={{img: friend.name, alt: friend.name }} size={32} />
-                    <div className="desc">
-                      <span>{friend.name}</span>
-                    </div>
+												<div className="user">
+													<User.Avatar
+														img={{ src: friend.profile_img, alt: friend.name }}
+														size={32}
+													/>
+													<div className="desc">
+														<span>{friend.name}</span>
+														<span
+															className="chat-status"
+															style={{
+																color:
+																	friend.status === "online"
+																		? "green"
+																		: friend.status === "inactive"
+																			? "yellow"
+																			: "red"
+															}}
+														/>
+													</div>
                   </div>
                 </li>
               ))}
