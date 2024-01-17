@@ -159,6 +159,7 @@ const Toolbar = ({ user, timelineUser }) => {
 	const { showModal } = useGlobalModalContext();
 	const [blocked, setBlocked] = useState(timelineUser.blocked);
 	const [invite, setInvite] = useState(null);
+	const [following, setFollowing] = useState(timelineUser?.following);
 
 	const sameUser = user.id === timelineUser.id;
 
@@ -281,6 +282,40 @@ const Toolbar = ({ user, timelineUser }) => {
 		}
 	};
 
+	const follow = async () => {
+		const { data, error } = await fetchAction({
+			path: `follows/${timelineUser.id}`,
+			options: {
+				method: "POST"
+			}
+		});
+
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
+
+		if (data && data.success) {
+			setFollowing(!following);
+		}
+	};
+
+	const unfollow = async () => {
+		const { data, error } = await fetchAction({
+			path: `follows/${timelineUser.id}`,
+			options: {
+				method: "DELETE"
+			}
+		});
+
+		if (error) {
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
+
+		if (data && data.success) {
+			setFollowing(!following);
+		}
+	};
+
 	return (
 		<div className="toolbar">
 			<div className="container">
@@ -300,27 +335,36 @@ const Toolbar = ({ user, timelineUser }) => {
 						)}
 					</Dropdown>
 				</div>
-				{!sameUser &&
-					(invite ? (
-						invite.status === "pending" &&
-						(invite.action_user_id === timelineUser.id ? (
-							<div>
-								<Button title="accept" onClick={acceptInvite} />
-								<Button title="reject" onClick={cancelInvite} />
-							</div>
+				<div className="toolbar-actions">
+					{!sameUser && (
+						<div>
+							<Button
+								className="btn-outlined"
+								title={following ? "Seguindo" : "Seguir"}
+								onClick={following ? unfollow : follow}
+							/>
+						</div>
+					)}
+					{!sameUser &&
+						(invite ? (
+							invite.status === "pending" &&
+							(invite.adding_user_id === timelineUser.id ? (
+								<div>
+									<Button title="accept" onClick={acceptInvite} />
+									<Button title="reject" onClick={cancelInvite} />
+								</div>
+							) : (
+								<div>
+									<Button title="Cancel Invite" onClick={cancelInvite} />
+								</div>
+							))
 						) : (
 							<div>
-								<Button title="Cancel Invite" onClick={cancelInvite} />
+								<Button title="Send Invite" onClick={inviteFriend} />
 							</div>
-						))
-					) : (
-						<div>
-							<Button title="Send Invite" onClick={inviteFriend} />
-						</div>
-					))}
+						))}
+				</div>
 			</div>
 		</div>
 	);
 };
-
-export default Timeline

@@ -133,4 +133,75 @@ async function cancelInvite(req, res, next) {
 	}
 }
 
-export { createInvite, updateInvite, cancelInvite, getFriends, getInvite };
+async function follow(req, res, next) {
+	const userId = req.user.id;
+	const followedUserId = req.params.userId;
+
+	const [query, place] = [
+		"insert ignore into follows(following_user_id, followed_user_id) values(?, ?)",
+		[userId, followedUserId]
+	];
+
+	try {
+		const [result] = await db.execute(query, place);
+		if (!result.insertId) {
+			return res.status(204).end();
+		}
+
+		res.status(200).json({ success: true });
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function getFollows(req, res, next) {
+	const userId = req.user.id;
+
+	const [query, place] = [
+		"select from follows where followed_user_id = ?",
+		[userId]
+	];
+
+	try {
+		const [rows] = await db.execute(query, place);
+		if (rows.length === 0) {
+			return res.status(204).end();
+		}
+
+		res.status(200).json(rows);
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function unfollow(req, res, next) {
+	const userId = req.user.id;
+	const followedUserId = req.params.userId;
+
+	const [query, place] = [
+		"delete from follows where following_user_id = ? AND followed_user_id = ?",
+		[userId, followedUserId]
+	];
+
+	try {
+		const [result] = await db.execute(query, place);
+		if (!result.affectedRows) {
+			return res.status(204).end();
+		}
+
+		res.status(200).json({ success: true });
+	} catch (error) {
+		next(error);
+	}
+}
+
+export {
+	createInvite,
+	updateInvite,
+	cancelInvite,
+	getFriends,
+	getInvite,
+	getFollows,
+	follow,
+	unfollow
+};

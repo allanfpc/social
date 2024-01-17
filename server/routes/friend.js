@@ -5,7 +5,10 @@ import {
 	updateInvite,
 	cancelInvite,
 	getFriends,
-	getInvite
+	getInvite,
+	getFollows,
+	follow,
+	unfollow
 } from "../controllers/friendsController.js";
 import authValidation from "../middlewares/authValidation.js";
 import { getUserBy } from "../controllers/userController.js";
@@ -28,5 +31,12 @@ router
 	.get(getInvite)
 	.put(updateInvite)
 	.delete(cancelInvite);
+
+router
+	.route("/follows/:userId")
+	.all(authValidation())
+	.get(getFollows)
+	.post(follow)
+	.delete(unfollow);
 
 export default router;
