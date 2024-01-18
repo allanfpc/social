@@ -1,0 +1,196 @@
+.friends {
+    display: flex;
+    height: 100%;
+    flex-grow: 1;
+    max-height: 100vh;
+}
+
+.users {
+    display: flex;
+    max-width: 20rem;
+    height: 100%;
+    width: 100%;
+    box-shadow: var(--elevation-1);
+    
+}
+
+.users .sidebar {
+    padding: 0 var(--spacing);
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: stretch;
+}
+
+.sidebar-title {
+    margin-top: 12px;
+    text-indent: 4px;
+}
+
+.sidebar-body {
+    margin-top: var(--spacing);
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.users-list::-webkit-scrollbar {
+    display: none;
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+}
+
+.users-list {
+    display: flex;
+    width: 100%;
+    max-height: 400px;
+    /* background-color: #a8b1ff; */
+    flex-direction: column;
+    overflow: auto;    
+    flex-grow: 1;
+    border-radius: 4px;
+}
+
+.users-list .row {
+    padding: 0 12px;
+    display: flex;
+    min-height: 80px;
+    color: gray;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color-base);
+}
+
+.users-list .row:hover {
+    background-color: var(--highlight-color-base);
+}
+
+.users-list .row a > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.message {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.container-toolbar {
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--elevation-1);
+}
+
+.container-toolbar .toolbar-actions {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.user-wrapper {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: row;
+}
+
+.user-wrapper .user {
+    padding: 0 var(--spacing);
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.user .desc {
+    margin-left: 12px;
+}
+
+.message .container { 
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.messages-wrapper {
+    display: flex;
+    overflow: auto;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.messages-wrapper::-webkit-scrollbar {
+    display: none;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.welcome {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.welcome .welcome-body {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar .actions {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-size: var(--font-body-size);
+    font-weight: var(--font-body-weight);
+    letter-spacing: var(--font-body-tracking);
+    line-height: var(--font-body-lh);
+    letter-spacing: var(--font-body-tracking);
+    white-space: pre-wrap;
+}
+
+.sidebar .actions .action {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    height: 42px;
+    border-radius: 4px;
+}
+
+.action:hover {
+    background-color: var(--highlight-color-base);
+}
+
+.action span {
+    margin-left: 12px;
+}
+
+.action button, .action a {
+    padding: 0 12px;
+    display: flex;
+    width: 100%;    
+    align-items: center;
+    border-radius: 4px;
+}
+
+nav > div {
+    padding: 0 12px;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
