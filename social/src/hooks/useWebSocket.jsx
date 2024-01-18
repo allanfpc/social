@@ -27,13 +27,12 @@ export const useWebSocket = (url) => {
 		return () => {
 			wsCurrent.close();
 		};
-	}, []);
+	}, [url]);
 
 	useEffect(() => {
 		if (!ws.current) return;
 		ws.current.onmessage = (e) => {
 			const data = JSON.parse(e.data);
-
 			if (data) {
 				if (data.type === "error") {
 					showError(new CustomError(500, data.message));
@@ -42,9 +41,7 @@ export const useWebSocket = (url) => {
 				}
 			}
 		};
-
-		return () => {};
-	}, [setValue]);
+	}, [setValue, url]);
 
 	const sendJsonMessage = useCallback((data) => {
 		if (ws.current.readyState === ws.current.OPEN) {

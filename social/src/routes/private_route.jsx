@@ -23,9 +23,13 @@ export default function privateRoutes() {
 			element: <ProtectedRoute />,
 			children: [
 				{
-					index: true,					
-				}
-			]
+		{
+			path: "/friends",
+			async lazy() {
+				const { Friends } = await import("../pages/Friends");
+				return { Component: Friends };
+			}
+		},
 		}
 	];	
 }
