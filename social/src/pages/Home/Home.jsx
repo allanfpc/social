@@ -9,21 +9,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { fetchAction, useQuery } from "../../components/api/api";
 import { useErrorContext } from "../../contexts/ErrorContext";
 
-export const Home = () => {  
-  const {user, isAuthenticated} = useAuthContext();  
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isVisible, setIsVisible] = useState(null);
-  const [previousData, setPreviousData] = useState([]);
-  const [page, setPage] = useState(1);  
-  const postsRef = useRef([]); 
-  const less = useRef(false);
-  
-  let limit = (previousData.length / 2) + 30;
-  let offset =  (previousData.length / 2) - 10; 
-
-  const {data: posts, setData: setPosts, loading} = useQuery({
-    path: `posts?page=${page}`
-  });
+const Chat = lazy(() => import("../../components/Chat"));
+	const chatRef = useRef(null);
 
   useEffect(() => {
     if(posts.rows && !less.current) {
@@ -90,41 +77,43 @@ export const Home = () => {
     }
   }, [page, posts]); 
 
-  return (
-    <>      
-      <section className="posts">
-        <div className="column">
-          {isAuthenticated && (<Postbox posts={posts} setPosts={setPosts} />)}
-          <div className="posts-wrapper">
-            <div className="title">
-              <h1>Trending posts</h1>
-            </div>            
-            {loading ? (
-              <div className="flex-center container">
-                <div className="loading">
-                  <span></span>
-                </div>
-              </div>
-            ) :
-            previousData.slice(offset, limit).map((post, i) => (
-              <Post     
-                key={post.post_id}
-                ref={(el) => postsRef.current[i] = el}
-                post={post}
-                isVisible={isVisible}                    
-                actions
-              />
-            ))}
-          </div>
-        </div>
-      </section>      
-    </>
-  )
-}
-
-const Postbox = ({posts, setPosts}) => {
-
-  const {showError} = useErrorContext();
+			{isAuthenticated && (
+				<div
+					ref={chatRef}
+					className={`chat  ${isChatExpanded ? "expanded" : ""}`}
+				>
+					{!isChatExpanded ? (
+						<div
+							className="chat__toolbar"
+							onClick={() => setIsChatExpanded(!isChatExpanded)}
+						>
+							<div className="toggle-expand">
+								<Button className="btn-sm" label="Chat expand">
+									<svg
+										aria-hidden="true"
+										focusable="false"
+										fill="currentColor"
+										xmlns="http://www.w3.org/2000/svg"
+										height="24"
+										viewBox="0 -960 960 960"
+										width="24"
+									>
+										<path d="m296-358.463-42.153-42.152L480-626.768l226.153 226.153L664-358.463l-184-184-184 184Z" />
+									</svg>
+								</Button>
+							</div>
+						</div>
+					) : (
+						<Suspense fallback={null}>
+							<Chat
+								chatRef={chatRef}
+								setIsExpanded={setIsChatExpanded}
+								isExpanded={isChatExpanded}
+							/>
+						</Suspense>
+					)}
+				</div>
+			)}
 
   const [message, setMessage] = useState({
     message: '',
