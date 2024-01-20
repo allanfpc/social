@@ -23,7 +23,7 @@ async function getAllPosts(req, res, next) {
 				u.id,
 				u.name,
 				u.nickname,
-				u.profile_img,
+				u.picture,
 				DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,				
 				(select
 					JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
@@ -74,8 +74,8 @@ async function getUserPosts(req, res, next) {
             posts.*,
             u.id,
             u.name,
-            u.nickname,
-            u.profile_img,
+				u.nickname,
+				u.picture,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
 			(select 
 				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
@@ -122,7 +122,7 @@ async function getPost(id, postId, next) {
             u.id,
             u.name,
             u.nickname,
-            u.profile_img,
+            u.picture,
             DATE_FORMAT(posts.created_at, '%m-%d-%Y') as date,
 			(select 
 				JSON_ARRAYAGG(JSON_OBJECT('img', img, 'post_id', post_id, 'id', id, 'img_id', img_id, 'ext', ext, 'responsive', responsive, 'sizes', CAST(sizes as JSON)))
@@ -172,14 +172,14 @@ async function fetchPost(req, res, next) {
 	}
 }
 
-async function createPost(req, res, next) {
+async function createPost(req, res, next, body, file, callback) {
 	const { id } = req.user;
-	const { message } = req.body;
+	const { message } = body || req.body;
+	const files = file || req.files;
 	const postId = crypto.randomUUID();
-	const files = req.files;
 
 	const [query, place] = [
-		`insert into posts (user_id, post_id, text) values (?, ?, ?)`,
+		"insert into posts (user_id, post_id, text) values (?, ?, ?)",
 		[id, postId, message]
 	];
 
@@ -194,6 +194,7 @@ async function createPost(req, res, next) {
 				false
 			);
 		}
+
 		if (files.length > 0) {
 			const response = await processFile(req, res, next, postId);
 
@@ -212,7 +213,11 @@ async function createPost(req, res, next) {
 
 		const data = await getPost(id, postId, next);
 
-		res.status(201).json({ success: true, post: data });
+		if (callback) {
+			callback();
+		} else {
+			res.status(201).json({ success: true, post: data });
+		}
 	} catch (error) {
 		next(error);
 	}
@@ -292,7 +297,7 @@ async function getComments(req, res, next) {
 			u.id, 
 			u.name, 
 			u.nickname, 
-			u.profile_img, 
+				u.picture, 
 			comment, 
 			user_id, 
 			post_id,  
