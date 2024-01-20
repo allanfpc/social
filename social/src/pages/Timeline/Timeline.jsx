@@ -87,70 +87,137 @@ const Profile = ({user, timelineUser, setModal}) => {
   console.log(user)
   console.log('profile: ', timelineUser)
   
-  const [cover, setCover] = useState(timelineUser.cover);
-  const [profileImg, setProfileImg] = useState(timelineUser.profile_img)
+const Profile = ({ user, timelineUser, isAuthenticated }) => {
+	const { showModal } = useGlobalModalContext();
+	const [cover, setCover] = useState(timelineUser.cover);
+	const [profileImg, setProfileImg] = useState(timelineUser.picture);
+	const picInputRef = useRef(null);
+	const coverInputRef = useRef(null);
 
-  const picInputRef = useRef(null);
-  const coverInputRef = useRef(null);
-  
-  const sameUser = (user && (user.id === timelineUser.id));
+	const sameUser = user && user.id === timelineUser.id;
 
-  const createModal = (props) => {
-    showModal("CREATE_MODAL", {
-        ...props
-    })
-  };
+	const createModal = (props) => {
+		showModal("CREATE_MODAL", {
+			...props
+		});
+	};
 
-  function changeProfilePic(e) {
-    const file = e.target.files[0];
-    createModal({ 
-      elem: <UpdateImage image={file} onImageChange={setProfileImg} token={token} fileUpload={picInputRef.current} />
-    })    
-  }
+	function changeProfilePic(e) {
+		const file = e.target.files[0];
+		createModal({
+			elem: (
+				<UpdateImage
+					user={user}
+					type={"picture"}
+					image={file}
+					onImageChange={setProfileImg}
+					fileUpload={picInputRef.current}
+				/>
+			),
+			fileUpload: picInputRef.current
+		});
+	}
 
-  async function changeProfileCover(e) {
-    const file = e.target.files[0];
+	async function changeProfileCover(e) {
+		const file = e.target.files[0];
 
-    createModal({ 
-      elem: <UpdateImage image={file} onImageChange={setCover} token={token} fileUpload={coverInputRef.current} /> 
-    })    
-  }  
+		createModal({
+			elem: (
+				<UpdateImage
+					user={user}
+					type={"cover"}
+					image={file}
+					onImageChange={setCover}
+					fileUpload={coverInputRef.current}
+				/>
+			),
+			fileUpload: coverInputRef.current
+		});
+	}
 
-  return (
-    <div className="profile">
-      <div className="profile__cover">
-        <div className="cover" style={{backgroundImage: `url('/uploads/cover/${cover || 'default.png'}')`}}></div>                
-        {sameUser && (
-          <div className="floatCenter">
-            <Button onClick={() => coverInputRef.current.click()} label="Update Cover">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 -960 960 960" width="24">
-                <path d="M460-84.616q-87.769 0-149.269-61.5-61.5-61.499-61.5-149.268v-432.309q0-63.144 44.967-108.11 44.966-44.966 108.11-44.966t108.11 44.966q44.966 44.966 44.966 108.11v390.001q0 40.061-27.664 67.723-27.665 27.661-67.731 27.661-40.066 0-67.72-27.661-27.653-27.662-27.653-67.723v-390.001h47.691v390.001q0 20.269 13.712 33.981 13.712 13.712 33.981 13.712 20.269 0 33.981-13.712 13.712-13.712 13.712-33.981v-390.001q0-44.262-30.571-74.823-30.571-30.562-74.847-30.562-44.275 0-74.814 30.562-30.538 30.561-30.538 74.823v432.309q0 67.538 47.769 115.308Q392.461-132.307 460-132.307q67.539 0 115.308-47.769 47.769-47.77 47.769-115.308v-432.309h47.692v432.309q0 87.769-61.5 149.268-61.5 61.5-149.269 61.5Z"/>
-              </svg>
-            </Button>
-            <input type="file" accept="image/png, image/jpeg" ref={coverInputRef} onChange={(e) => changeProfileCover(e)} />
-          </div>
-        )}
-      </div>
-      <hr />              
-      <div className="profile__user">
-        <div className="profile__container__pic">
-          <div>
-            <User.Avatar nickname={timelineUser.nickname} img={{src: profileImg, alt: timelineUser.name }}>
-              {sameUser && (
-                <div className="floatCenter">
-                  <Button onClick={() => picInputRef.current.click()} label="Update profile picture">
-                    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 -960 960 960" width="24">
-                      <path d="M460-84.616q-87.769 0-149.269-61.5-61.5-61.499-61.5-149.268v-432.309q0-63.144 44.967-108.11 44.966-44.966 108.11-44.966t108.11 44.966q44.966 44.966 44.966 108.11v390.001q0 40.061-27.664 67.723-27.665 27.661-67.731 27.661-40.066 0-67.72-27.661-27.653-27.662-27.653-67.723v-390.001h47.691v390.001q0 20.269 13.712 33.981 13.712 13.712 33.981 13.712 20.269 0 33.981-13.712 13.712-13.712 13.712-33.981v-390.001q0-44.262-30.571-74.823-30.571-30.562-74.847-30.562-44.275 0-74.814 30.562-30.538 30.561-30.538 74.823v432.309q0 67.538 47.769 115.308Q392.461-132.307 460-132.307q67.539 0 115.308-47.769 47.769-47.77 47.769-115.308v-432.309h47.692v432.309q0 87.769-61.5 149.268-61.5 61.5-149.269 61.5Z"/>
-                    </svg>
-                  </Button>
-                  <input type="file" accept="image/png, image/jpeg" ref={picInputRef} onChange={(e) => changeProfilePic(e)} />
-                </div>
-              )}
-            </User.Avatar>
-          </div>
+	return (
+		<section className="profile">
+			<div className="profile-container">
+				<div>
+					<div className="profile__cover">
+						<div
+							className="cover"
+							style={{
+								backgroundImage: `url('/uploads/cover/${
+									cover || "default.png"
+								}')`
+							}}
+						/>
+						{sameUser && (
+							<div className="floatCenter">
+								<Button
+									className="rounded"
+									onClick={() => coverInputRef.current.click()}
+									label="Update Cover"
+								>
+									<svg
+										aria-hidden="true"
+										focusable="false"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="currentColor"
+										height="24"
+										viewBox="0 -960 960 960"
+										width="24"
+									>
+										<path d="M460-84.616q-87.769 0-149.269-61.5-61.5-61.499-61.5-149.268v-432.309q0-63.144 44.967-108.11 44.966-44.966 108.11-44.966t108.11 44.966q44.966 44.966 44.966 108.11v390.001q0 40.061-27.664 67.723-27.665 27.661-67.731 27.661-40.066 0-67.72-27.661-27.653-27.662-27.653-67.723v-390.001h47.691v390.001q0 20.269 13.712 33.981 13.712 13.712 33.981 13.712 20.269 0 33.981-13.712 13.712-13.712 13.712-33.981v-390.001q0-44.262-30.571-74.823-30.571-30.562-74.847-30.562-44.275 0-74.814 30.562-30.538 30.561-30.538 74.823v432.309q0 67.538 47.769 115.308Q392.461-132.307 460-132.307q67.539 0 115.308-47.769 47.769-47.77 47.769-115.308v-432.309h47.692v432.309q0 87.769-61.5 149.268-61.5 61.5-149.269 61.5Z" />
+									</svg>
+								</Button>
+								<input
+									type="file"
+									accept="image/png, image/jpeg"
+									ref={coverInputRef}
+									onChange={(e) => changeProfileCover(e)}
+								/>
+							</div>
+						)}
+					</div>
+					<hr />
+					<div className="profile__pic">
+						<div>
+							<User.Avatar
+								nickname={timelineUser.nickname}
+								img={{ src: profileImg, alt: timelineUser.name }}
+							>
+								{sameUser && (
+									<div className="floatCenter">
+										<Button
+											className="rounded"
+											onClick={() => picInputRef.current.click()}
+											label="Update profile picture"
+										>
+											<svg
+												aria-hidden="true"
+												focusable="false"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="currentColor"
+												height="24"
+												viewBox="0 -960 960 960"
+												width="24"
+											>
+												<path d="M460-84.616q-87.769 0-149.269-61.5-61.5-61.499-61.5-149.268v-432.309q0-63.144 44.967-108.11 44.966-44.966 108.11-44.966t108.11 44.966q44.966 44.966 44.966 108.11v390.001q0 40.061-27.664 67.723-27.665 27.661-67.731 27.661-40.066 0-67.72-27.661-27.653-27.662-27.653-67.723v-390.001h47.691v390.001q0 20.269 13.712 33.981 13.712 13.712 33.981 13.712 20.269 0 33.981-13.712 13.712-13.712 13.712-33.981v-390.001q0-44.262-30.571-74.823-30.571-30.562-74.847-30.562-44.275 0-74.814 30.562-30.538 30.561-30.538 74.823v432.309q0 67.538 47.769 115.308Q392.461-132.307 460-132.307q67.539 0 115.308-47.769 47.769-47.77 47.769-115.308v-432.309h47.692v432.309q0 87.769-61.5 149.268-61.5 61.5-149.269 61.5Z" />
+											</svg>
+										</Button>
+										<input
+											type="file"
+											accept="image/png, image/jpeg"
+											ref={picInputRef}
+											onChange={(e) => changeProfilePic(e)}
+										/>
+									</div>
+								)}
+							</User.Avatar>
+						</div>
+					</div>
+				</div>
+
+				<Toolbar user={user} timelineUser={timelineUser} />
 			</div>
-			<Toolbar user={user} timelineUser={timelineUser} />
-		</div>
+		</section>
 	);
 };
 

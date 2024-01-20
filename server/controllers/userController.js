@@ -73,19 +73,36 @@ async function unblockUser(req, res, next) {
 
 async function updateUser(req, res, next) {
 	const { id } = req.user;
-	const img = req.file;
-	const type = req.type === "profile" ? "profile_img" : "cover";
+	const value = req.file ? req.file.filename : req.body;
+	const type = req.type;
+
 	const query = `update users set ${type} = ? where id = ?`;
 
 	try {
-		const [result] = await db.execute(query, [img.filename, id]);
-		console.log(result);
+		const [result] = await db.execute(query, [value, id]);
+
 		if (!result.affectedRows) {
 			return res.status(204).end();
 		}
 
-		res.status(200).json({ success: true, filename: img.filename });
+		if (req.file) {
+			await createPost(
+				req,
+				res,
+				next,
+				{
+					message: "Your profile picture has been updated!"
+				},
+				req.file,
+				(response) => {
+					res.status(200).json({ success: true, filename: value });
+				}
+			);
+		} else {
+			res.status(200).json({ success: true });
+		}
 	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 }
