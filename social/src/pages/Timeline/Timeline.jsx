@@ -19,8 +19,14 @@ import Cookies from "js-cookie";
 //const token = Cookies.get('token');
 
 const Timeline = () => {
-  const {user, token} = useAuthContext();
-  
+		data: { rows: posts, total_posts },
+		loading
+	} = useQuery({
+		path: `users/${timelineUser.id}/posts?page=${page}`,
+		options: {
+			page
+		}
+	});
   const timelineUser = useLoaderData();
   
   const [modal, setModal] = useState(null);
@@ -31,55 +37,72 @@ const Timeline = () => {
     setLoading
   });
 
-  return (
-    <>       
-      <Layout modal={modal} setModal={setModal}>
-        <section>
-          <div className="container">
-            <Profile user={user} timelineUser={timelineUser} setModal={setModal} />
-          </div>
-        </section>
-        <section className="posts">
-          <div className="toolbar"></div>
-          <div className="flex-center">
-            <div className="column">
-              <div className="posts-wrapper">
-                {loading ? (
-                  <div className="flex-center container">
-                    <div className="loading">
-                      <span></span>
-                    </div>
-                  </div>
-                ) : (!posts || posts.length === 0)
-                ?
-                  (<div className="container">
-                    <span>No posts to show</span>
-                  </div>)
-                : 
-                posts.map((post) => (
-                  <Post          
-                    name={post.name}
-                    nickname={post.nickname}
-                    profile_img={post.profile_img}
-                    date={post.date}
-                    images={post.images}
-                    key={post.post_id}
-                    id={post.post_id}                    
-                    text={post.text}                    
-                    liked={post.liked}
-                    totalLikes={post.total_likes}
-                    totalComments={post.total_comments}
-                    totalShares={post.total_shares}
-                    setModal={setModal}
-                    actions
-                  />
-                ))}               
-            </div>
-            </div>
-          </div>                
-        </section>        
-      </Layout>
-    </>
+	return (
+		<>
+			<div className="column">
+				<Profile
+					user={user}
+					isAuthenticated={isAuthenticated}
+					timelineUser={timelineUser}
+				/>
+				<section className="posts">
+					<div className="column">
+						{loading ? (
+							<Loading />
+						) : posts.length === 0 ? (
+							<div className="container">
+								<span>No posts to show</span>
+							</div>
+						) : (
+							<Posts
+								title={`${timelineUser?.name} recent posts`}
+								previousData={previousData}
+								setPreviousData={setPreviousData}
+								posts={posts}
+								postsRef={postsRef}
+								user={user}
+								offset={offset}
+								page={page}
+								limit={limit}
+							/>
+						)}
+					</div>
+				</section>
+				{isAuthenticated && (
+					<div className={`chat`}>
+						{!isChatExpanded ? (
+							<div
+								className="chat__toolbar"
+								onClick={() => setIsChatExpanded(!isChatExpanded)}
+							>
+								<div className="toggle-expand">
+									<Button className="btn-sm" label="Chat expand">
+										<svg
+											aria-hidden="true"
+											focusable="false"
+											fill="currentColor"
+											xmlns="http://www.w3.org/2000/svg"
+											height="24"
+											viewBox="0 -960 960 960"
+											width="24"
+										>
+											<path d="m296-358.463-42.153-42.152L480-626.768l226.153 226.153L664-358.463l-184-184-184 184Z" />
+										</svg>
+									</Button>
+								</div>
+							</div>
+						) : (
+							<Suspense fallback={<Loading />}>
+								<Chat
+									setIsChatExpanded={setIsChatExpanded}
+									isExpanded={isChatExpanded}
+								/>
+							</Suspense>
+						)}
+					</div>
+				)}
+			</div>
+		</>
   )
 }
 

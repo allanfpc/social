@@ -9,6 +9,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { fetchAction, useQuery } from "../../components/api/api";
 import { useErrorContext } from "../../contexts/ErrorContext";
 
+import Picker from "../../components/Picker";
 const Chat = lazy(() => import("../../components/Chat"));
 	const chatRef = useRef(null);
 
@@ -80,18 +81,39 @@ const Chat = lazy(() => import("../../components/Chat"));
 			{isAuthenticated && (
 				<div
 					ref={chatRef}
-					className={`chat  ${isChatExpanded ? "expanded" : ""}`}
-				>
-					{!isChatExpanded ? (
-						<div
-							className="chat__toolbar"
-							onClick={() => setIsChatExpanded(!isChatExpanded)}
+				<div>
+					<Button
+						onClick={() => imageInputRef.current.click()}
+						label="Upload image for share"
+					>
+						<svg
+							aria-hidden="true"
+							focusable="false"
+							xmlns="http://www.w3.org/2000/svg"
+							height="24"
+							viewBox="0 -960 960 960"
+							width="24"
 						>
-							<div className="toggle-expand">
-								<Button className="btn-sm" label="Chat expand">
-									<svg
-										aria-hidden="true"
-										focusable="false"
+							<path d="M212.309-140.001q-30.308 0-51.308-21t-21-51.308v-535.382q0-30.308 21-51.308t51.308-21h535.382q30.308 0 51.308 21t21 51.308v535.382q0 30.308-21 51.308t-51.308 21H212.309Zm0-59.999h535.382q4.616 0 8.463-3.846 3.846-3.847 3.846-8.463v-535.382q0-4.616-3.846-8.463-3.847-3.846-8.463-3.846H212.309q-4.616 0-8.463 3.846-3.846 3.847-3.846 8.463v535.382q0 4.616 3.846 8.463 3.847 3.846 8.463 3.846Zm57.693-90.001h423.073L561.538-465.384 449.231-319.231l-80-102.306-99.229 131.536ZM200-200V-760-200Z" />
+						</svg>
+					</Button>
+					<input
+						type="file"
+						accept="image/jpeg, image/png, image/gif, image/webp"
+						ref={imageInputRef}
+						multiple
+						onChange={(e) => chooseImage(e.target.files)}
+						aria-label="Upload Image"
+					/>
+				</div>
+
+				{
+					<Picker
+						message={message}
+						setMessage={setMessage}
+						msgBoxRef={messageInputRef}
+					/>
+				}
 										fill="currentColor"
 										xmlns="http://www.w3.org/2000/svg"
 										height="24"

@@ -50,10 +50,6 @@ async function getAllPosts(req, res, next) {
 
 		const [rows] = await db.query(query, place);
 
-		if (rows.length === 0) {
-			return res.status(204).end();
-		}
-
 		res.status(200).json({
 			total_posts: totalPosts,
 			rows
