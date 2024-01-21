@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import "./friends.css";
 
-import { Message } from "../../components/Chat";
+import { Message } from "../../components/Picker";
 import Button from "../../components/Button";
 import User from "../../components/User";
 import SearchBar from "../../components/SearchBar/SearchBar";
@@ -30,34 +30,20 @@ const Welcome = ({ name }) => {
 };
 
 export const Friends = () => {
-	const { user } = useAuthContext();
+	const { user, signOut } = useAuthContext();
 	const [friendInteract, setFriendInteract] = useState(null);
-	const [filteredFriends, setFilteredFriends] = useState([]);
 	const [state, setState] = useState(null);
-	const [value, setValue] = useState(null);
-	const location = useLocation();
+	const [search, setSearch] = useState("");
 	const navigate = useNavigate();
 
-	const { data: friends, error } = useQuery({
+	const { data: friends } = useQuery({
 		path: "friends"
 	});
 
-	useEffect(() => {
-		if (value && friends?.length > 0) {
-			setFilteredFriends(friends);
-		}
-	}, [friends, value]);
-
-	useEffect(() => {
-		if (location.hash && friends) {
-			const find = friends.find((f) => f.name === location.hash.slice(1));
-			console.log(find);
-			if (find) {
-				setFriendInteract(find);
-			}
-		}
-	}, [location]);
-
+	const filteredFriends =
+		search.length > 0
+			? friends.filter((f) => f.name.includes(search))
+			: friends;
 	const back = () => {
 		navigate(-1);
 	};
@@ -75,12 +61,12 @@ export const Friends = () => {
 								<div>
 									<div>
 										<SearchBar
-											value={value || ""}
-											onChange={(e) => setValue(e.target.value)}
+											value={search || ""}
+											onChange={(e) => setSearch(e.target.value)}
 										/>
 									</div>
 									<div className="users-list">
-										{friends.slice(0, 20).map((friend, i) => (
+										{filteredFriends.map((friend, i) => (
 											<div
 												id={friend.name}
 												className="row"
@@ -93,7 +79,7 @@ export const Friends = () => {
 												<Link to={`#${friend.name}`}>
 													<div>
 														<User.Avatar
-															img={{ src: friend.profile_img, alt: "profile" }}
+															img={{ src: friend.picture, alt: "profile" }}
 															size={50}
 														/>
 														<User.Desc name={friend.name} />
@@ -105,7 +91,7 @@ export const Friends = () => {
 
 									<div className="actions">
 										<div className="action logout">
-											<a href="/signout">
+											<a href="/login" onClick={signOut}>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
 													height="24"
@@ -163,7 +149,7 @@ export const Friends = () => {
 									<div className="user-wrapper">
 										<div className="user">
 											<User.Avatar
-												img={{ src: friendInteract.profile_img }}
+												img={{ src: friendInteract.picture }}
 												alt={friendInteract.name}
 												size={42}
 											/>
