@@ -584,6 +584,39 @@ input {
   font-size: 15px;  
 }
 
+input[type="checkbox"], input[type="radio"] {
+  padding: 2px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  color: var(--stroke-color-base);
+  background-color: white;
+  border: 1px solid var(--border-color-base);
+  border-radius: 2px;
+}
+
+input[type="checkbox"] {
+  line-height: 14px;
+  text-align: center;
+  font-size: 16px;
+}
+
+input[type="radio"] {  
+  line-height: 10px;
+  text-align: center;
+  font-size: 24px;
+  border-radius: 9999px;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "\02713";  
+}
+
+input[type="radio"]:checked::after {
+  content: "\25CF";
+  color: var(--stroke-color-base);  
+}
+
 .input-container:hover {
   background-color: #3f3f3f40;
 }
@@ -1102,6 +1135,50 @@ section.post .post {
   font-size: 1rem;
 }
 
+.menu-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+
+.menu {
+  margin-top: 4px;
+  position: absolute;
+  right: 4px;
+  top: 42px;
+  max-width: 120px;
+  width: 100%;
+  box-shadow: var(--elevation-1);  
+  background-color: var(--bg-color-base);
+  z-index: 2;
+}
+
+.menu ul {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color-base);
+  border-radius: 4px;
+}
+
+.menu ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  height: 40px;
+  color: var(--text-color-base);
+  transition: all .2s cubic-bezier(.2,0,0,1);
+  font-weight: 400;
+}
+
+.menu ul li:hover {
+  background: var(--highlight-color-base);
+}
+
+.menu ul li.delete {
+  color: var(--alert-d-color-base);
+}
+
 .float-link {
   position: absolute;
   left: 0;
@@ -1314,27 +1391,27 @@ section.post .post {
 }
 
 .chat {
+  display: flex;
+  flex-direction: row;
   position: fixed;
-  max-width: 240px;
-  min-height: 32px;
-  width: 100%;
   right: 16px;
-  bottom: 0;
-  flex-direction: column;
+  bottom: 0;  
+  height: 40px;
+  transition: height 0.8s linear;
   border-top-right-radius: 6px;
   border-top-left-radius: 6px;
-  overflow: hidden;
-  box-shadow: var(--elevation-5); 
+  box-shadow: var(--elevation-5);
   background: var(--bg-color-base);
-  z-index: 1;
   cursor: pointer;
+  z-index: 1;
 }
 
 .chat__toolbar {
   padding: 0 4px;
   display: flex;
-  width: 100%;
-  height: 32px;  
+  width: 300px;
+  height: 40px;
+  min-height: 40px;  
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid var(--stroke-color-base);
@@ -1347,21 +1424,18 @@ section.post .post {
 .toggle-expand {
   position: absolute;
   right: 4px;
-  top: 4px;
   display: flex;
 }
 
 .expanded {
-  height: 300px !important;
+  height: 400px !important;
 }
 
 .chat .container {
   display: flex;    
-  height: 0px;
   flex-direction: column;
   overflow: auto;  
   background: var(--bg-color-base);
-  transition: height 0.25s ease-out;
   cursor: pointer; 
 }
 
@@ -1383,7 +1457,7 @@ section.post .post {
 }
 
 .messages {
-  padding: 8px 12px;
+  padding: 0 var(--spacing);
   display: flex;
   flex-grow: 1;
   flex-direction: column-reverse;
@@ -1400,6 +1474,7 @@ section.post .post {
 
 .messages .row > div {
   display: flex;
+  width: 100%;
   flex-direction: column;
 }
 
@@ -1410,7 +1485,8 @@ section.post .post {
 
 .messages .msg {
   padding: 4px;
-  max-width: 180px;
+  width: fit-content;
+  max-width: 50%;
   overflow: hidden;
   overflow-wrap: break-word;
   text-align: start;
@@ -1448,18 +1524,23 @@ section.post .post {
   display: flex;
   position: relative;
   cursor: text;
+  border-top: 1px solid #80808021;
+  box-shadow: var(--elevation-5);
 }
 
-.message-box .input-container {
-  max-width: 100%;
-  width: 100%;
+.message-box .textarea-container {
+  border: 0;
 }
 
-.message-box .send {  
+.message-box .toolbar {
+  padding: 0 12px;
   display: flex;
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  right: 0;
+  height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+  z-index: 3;
 }
 
 .message-box button {
@@ -1470,6 +1551,15 @@ section.post .post {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.chat__list::-webkit-scrollbar {
+  display: none;
+  opacity: 0;
+  width: 0px;
+  height: 0px;
 }
 
 .chat .title {
@@ -1499,15 +1589,26 @@ section.post .post {
 .chat__list__users .user {
   display: flex;
   padding: 0 12px;
-  height: 40px;
+  height: 52px;
   align-items: center;
 }
 
 .chat__list__users .desc {  
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
   font-size: var(--font-body-size);
   letter-spacing: var(--font-body-tracking);
   line-height: var(--font-body-lh);
   font-weight: var(--font-body-weight);
+}
+
+.chat-status {
+  margin-left: 12px;
+}
+
+.chat-status::after {
+  content: "\25CF";
 }
 
 .chat__list__users .avatar {
@@ -1519,6 +1620,31 @@ section.post .post {
   box-shadow: var(--elevation-0);
 }
 
+
+.chat-container {
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+  box-shadow: var(--elevation-5); 
+  background: var(--bg-color-base);
+  z-index: 1;
+  cursor: pointer;
+}
+
+.chat:has(em-emoji-picker) {
+  display: flex;
+  flex-direction: row;
+}
+
+.chat  div:has(> em-emoji-picker) {
+  margin-top: 0px;
+  margin-bottom: 4px;
+  max-width: 300px;
+  bottom: 80px;
+}
+
 .picker {
   position: absolute;
   display: flex;
@@ -1526,9 +1652,15 @@ section.post .post {
   margin-top: 40px;
 }
 
-.picker > div {
+
+
+
+div:has(> em-emoji-picker) {
+  margin-top: 12px;
+  margin-bottom: 4px;
   position: absolute;
-  margin-top: 2px;
+  bottom: 80px;
+  right: 4px;
 }
 
 em-emoji-picker {  
@@ -1691,6 +1823,54 @@ em-emoji-picker {
   border: none;
 }
 
+.report {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.report-body {
+  margin: var(--spacing) 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+}
+
+.report form {
+  padding: 0 var(--spacing);
+  display: flex;
+  flex-grow: 1;
+}
+
+.report .form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.report .option {
+  margin-bottom: 4px;
+  position: relative;
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.report .option > div {
+  display: flex;
+}
+
+.report .option .label {
+  margin-left: 10px;
+}
+
+.report .options {
+  display: flex;
+  flex-direction: column;  
+}
 
 .error .input-container {
   border: 2px solid var(--alert-d-color-base) !important;  

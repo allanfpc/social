@@ -78,6 +78,39 @@ const ImageContainer = ({ user, image, type, onImageChange, fileUpload }) => {
 					hideModal();
 				}
 			}
+
+		const file = new File([croppedSrc], image.name, { type: image.type });
+
+		const formData = new FormData();
+		formData.append("file", file);
+
+		const { data, error } = await fetchAction({
+			path: `users/${user.id}?type=${type}`,
+			options: {
+				method: "PUT",
+				headers: {},
+				body: formData
+			}
+		});
+
+		if (error) {
+			if (error.code === 422 || error.code === 413) {
+				return showError("TOAST_ERROR", {
+					error: error.message,
+					files: error.files
+				});
+			}
+
+			return error.code === 401 ? showModal(401) : showError(error);
+		}
+
+		if (data && data.success) {
+			if (fileUpload) {
+				fileUpload.value = "";
+			}
+			onImageChange(data.filename);
+			hideModal();
+
 		}
 	}
 

@@ -52,6 +52,10 @@ importedRoutes.forEach(function (route) {
 	});
 });
 
+const wss = new WebSocketServer({
+	noServer: true
+});
+
 const connectedClients = new Map();
 const conversations = new Map();
 
@@ -64,10 +68,7 @@ function broadcast(conversation, data) {
 	});
 }
 
-const server = http.createServer(app);
-const socket = new WebSocketServer({ server });
-
-socket.on("connection", (socket, req) => {
+wss.on("connection", async (socket, req, user) => {
 	const url = new URL(req.url, `http://${req.headers.host}`);
 	const params = url.searchParams;
 	const senderUsername = params.get("senderUsername");
@@ -77,6 +78,7 @@ socket.on("connection", (socket, req) => {
 		const userId = crypto.randomUUID();
 		socket.username = senderUsername;
 		socket.userId = userId;
+		socket.id = user.id;
 		connectedClients.set(senderUsername, socket);
 	}
 
@@ -84,12 +86,13 @@ socket.on("connection", (socket, req) => {
 
 	conversations.forEach((conv, convId) => {
 		const participants = conv.participants;
-		if (
-			participants &&
-			participants.has(senderUsername) &&
-			participants.has(recipientUsername)
-		) {
-			conversationId = convId;
+		if (participants) {
+			if (
+				participants.has(senderUsername) &&
+				participants.has(recipientUsername)
+			) {
+				conversationId = convId;
+			}
 		}
 	});
 
@@ -116,6 +119,8 @@ socket.on("connection", (socket, req) => {
 			state: conversation.state
 		});
 	}
+
+	socket.on("error", onSocketError);
 
 	socket.on("close", () => {
 		conversations.forEach((conversation, conversationId) => {
@@ -154,10 +159,14 @@ socket.on("connection", (socket, req) => {
 			}
 
 			case "send-message": {
+				const recipientUser = await getUserBy(req, undefined, undefined, {
+					nickname: recipientUsername
+				});
+				let insertId;
 				try {
-					await createMessage(
-						data.senderId,
-						data.recipientId,
+					insertId = await createMessage(
+						user.id,
+						recipientUser.id,
 						data.message,
 						req
 					);
@@ -172,18 +181,26 @@ socket.on("connection", (socket, req) => {
 				}
 
 				const conversation = conversations.get(data.conversationId);
+
 				if (conversation && conversation.participants.has(senderUsername)) {
+					const date = new Date();
+					const dateNow = date.getHours() + ":" + date.getMinutes();
+
 					conversation.messages.push({
-						senderId: senderUsername,
-						recipientId: recipientUsername,
-						message: data.message
+						senderId: user.id,
+						recipientId: recipientUser.id,
+						id: insertId,
+						message: data.message,
+						date: dateNow
 					});
 
 					const castData = {
 						event: "receive-message",
-						senderId: senderUsername,
-						recipientId: recipientUsername,
-						message: data.message
+						id: insertId,
+						senderId: user.id,
+						recipientId: recipientUser.id,
+						message: data.message,
+						date: dateNow
 					};
 					broadcast(conversation, castData);
 				}
@@ -193,8 +210,44 @@ socket.on("connection", (socket, req) => {
 	});
 });
 
-server.listen(8080, () => {
-	console.log(`Server listen`);
+httpsServer.on("upgrade", function upgrade(request, socket, head) {
+	socket.on("error", onSocketError);
+
+	authValidation(true, request, function next(err) {
+		const user = request.user;
+
+		if (err || !user) {
+			socket.write(
+				"HTTP/1.1 401 Web Socket Protocol Handshake\r\n" +
+					"Upgrade: WebSocket\r\n" +
+					"Connection: Upgrade\r\n" +
+					"\r\n"
+			);
+			socket.destroy();
+			return;
+		}
+
+		socket.removeListener("error", onSocketError);
+		wss.handleUpgrade(request, socket, head, function done(ws) {
+			wss.emit("connection", ws, request, user);
+		});
+	});
+});
+
+function onSocketError(_, socket) {
+	const errorMessage = JSON.stringify({
+		type: "error",
+		message: "WebSocket error occurred"
+	});
+
+	wss.clients.forEach((client) => {
+		if (client === socket && client.readyState === 1) {
+			client.send(errorMessage);
+		}
+	});
+
+	socket.destroy();
+}
 });
 
 export default app;

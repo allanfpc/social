@@ -33,13 +33,47 @@ async function findUsers(text) {
 	try {
 		const [rows] = await db.query(query, place);
 		return rows;
+async function blockUser(req, res, next) {
+	const blockedUserId = req.params.userId;
+	const { id } = req.user;
+
+	const query = `insert ignore into blocks (blocking_user_id, blocked_user_id) values (?, ?)`;
+
+	try {
+		const [result] = await db.execute(query, [id, blockedUserId]);
+		console.log(result);
+		if (!result.affectedRows) {
+			return res.status(204).end();
+		}
+
+		res.status(200).json({ success: true });
 	} catch (error) {
-		throw new ApiError("INTERNAL_ERROR", 500, "Internal Server Error", false);
+		next(error);
+	}
+}
+
+async function unblockUser(req, res, next) {
+	const blockedUserId = req.params.userId;
+	const { id } = req.user;
+
+	const query = `delete from blocks where blocking_user_id = ? AND blocked_user_id = ?`;
+
+	try {
+		const [result] = await db.execute(query, [id, blockedUserId]);
+		console.log(result);
+		if (!result.affectedRows) {
+			return res.status(204).end();
+		}
+
+		res.status(200).json({ success: true });
+	} catch (error) {
+		next(error);
 	}
 }
 
 async function updateUser(req, res, next) {
 	const { id } = req.user;
+
 	const { type } = req.query;
 	const { value } = req.body;
 
@@ -69,6 +103,7 @@ async function updateUser(req, res, next) {
 			res.status(200).json({ success: true, filename: value });
 		}
 	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 }
@@ -140,6 +175,10 @@ export async function getMessagesBetweenUsers(
 }
 
 export {
+	getUserBy,
+	updateUser,
+	blockUser,
+	unblockUser,
 	updateUser,
 	getUserBy,
 	findUsers,

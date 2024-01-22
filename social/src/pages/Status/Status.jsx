@@ -11,6 +11,12 @@ import { useAuthContext } from "../../contexts/AuthContext";
 export const Component = () => {
     const post = useLoaderData();   
     const postRef = useRef(null);
+	const {
+		data: { rows: comments, total_comments },
+		loading
+	} = useQuery({
+		path: `posts/${post[0].post_id}/comments?page=${commentsPage}`
+	});
 
     useEffect(() => {
         window.scrollTo({ top: 0 });
@@ -24,41 +30,23 @@ export const Component = () => {
         path: `posts/${post.post_id}/comments`,
     });
 
-    return (        
-        <div className="status">
-            <section className="posts">
-                <div className="flex-center">
-                    <div className="column">
-                        <div className="posts-wrapper">
-                            <Post
-                                ref={postRef}          
-                                post={post[0]}                              
-                                actions                                
-                            />
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className="comments">
-                <div className="flex-center">
-                    <div className="column">
-                        <div className="comments-wrapper">
-                        {loading ? (
-                            <div className="flex-center container">
-                                <div className="loading">
-                                <span></span>
-                                </div>
-                            </div>
-                        ) : (comments.length === 0)
-                        ?
-                            (<div className="container">
-                                <span>No comments to show</span>
-                            </div>)
-                            :
-                        comments.map((comment, i) => (
-                            <Comment comment={comment} key={i} />
-                        ))}
-                        </div>
+	return (
+		<>
+			<div className="column">
+				<section className="status">
+					<div className="posts-wrapper">
+						<Post ref={postRef} post={post[0]} actions />
+					</div>
+				</section>
+				<section className="comments">
+					<div className="flex-center">
+						<div className="comments-wrapper">
+							{loading ? (
+								<Loading />
+							) : comments.length === 0 ? (
+								<div className="container">
+									<span>No comments to show</span>
+								</div>
                     </div>
                 </div>
             </section>

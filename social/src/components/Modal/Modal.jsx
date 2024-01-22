@@ -4,6 +4,7 @@ import Button from "../Button";
 
 export const Modal = ({elem, onClose, message, fileUpload, actions, children}) => {
   function closeModal() {
+	action,
     if(fileUpload) {      
       fileUpload.current.value = '';      
     }
@@ -31,19 +32,27 @@ export const Modal = ({elem, onClose, message, fileUpload, actions, children}) =
               </div>
             </div>
           )}
-        </div>                    
-        {actions && (
-          <div className="modal__actions">    
-            <div>
-              {actions.map((action) => (                
-                action
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>    
-  )
-}
+				</div>
+				<div className="modal__actions">
+					{actions ? (
+						<div>{actions.map((action) => action)}</div>
+					) : (
+						<div>
+							<Button
+								className="success btn-filled"
+								onClick={() => {
+									action();
+									onClose();
+								}}
+							>
+								Confirm
+							</Button>
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};
 
 export default Modal

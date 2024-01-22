@@ -9,21 +9,9 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { fetchAction, useQuery } from "../../components/api/api";
 import { useErrorContext } from "../../contexts/ErrorContext";
 
-export const Home = () => {  
-  const {user, isAuthenticated} = useAuthContext();  
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isVisible, setIsVisible] = useState(null);
-  const [previousData, setPreviousData] = useState([]);
-  const [page, setPage] = useState(1);  
-  const postsRef = useRef([]); 
-  const less = useRef(false);
-  
-  let limit = (previousData.length / 2) + 30;
-  let offset =  (previousData.length / 2) - 10; 
-
-  const {data: posts, setData: setPosts, loading} = useQuery({
-    path: `posts?page=${page}`
-  });
+import Picker from "../../components/Picker";
+const Chat = lazy(() => import("../../components/Chat"));
+	const chatRef = useRef(null);
 
   useEffect(() => {
     if(posts.rows && !less.current) {
@@ -90,41 +78,64 @@ export const Home = () => {
     }
   }, [page, posts]); 
 
-  return (
-    <>      
-      <section className="posts">
-        <div className="column">
-          {isAuthenticated && (<Postbox posts={posts} setPosts={setPosts} />)}
-          <div className="posts-wrapper">
-            <div className="title">
-              <h1>Trending posts</h1>
-            </div>            
-            {loading ? (
-              <div className="flex-center container">
-                <div className="loading">
-                  <span></span>
-                </div>
-              </div>
-            ) :
-            previousData.slice(offset, limit).map((post, i) => (
-              <Post     
-                key={post.post_id}
-                ref={(el) => postsRef.current[i] = el}
-                post={post}
-                isVisible={isVisible}                    
-                actions
-              />
-            ))}
-          </div>
-        </div>
-      </section>      
-    </>
-  )
-}
+			{isAuthenticated && (
+				<div
+					ref={chatRef}
+				<div>
+					<Button
+						onClick={() => imageInputRef.current.click()}
+						label="Upload image for share"
+					>
+						<svg
+							aria-hidden="true"
+							focusable="false"
+							xmlns="http://www.w3.org/2000/svg"
+							height="24"
+							viewBox="0 -960 960 960"
+							width="24"
+						>
+							<path d="M212.309-140.001q-30.308 0-51.308-21t-21-51.308v-535.382q0-30.308 21-51.308t51.308-21h535.382q30.308 0 51.308 21t21 51.308v535.382q0 30.308-21 51.308t-51.308 21H212.309Zm0-59.999h535.382q4.616 0 8.463-3.846 3.846-3.847 3.846-8.463v-535.382q0-4.616-3.846-8.463-3.847-3.846-8.463-3.846H212.309q-4.616 0-8.463 3.846-3.846 3.847-3.846 8.463v535.382q0 4.616 3.846 8.463 3.847 3.846 8.463 3.846Zm57.693-90.001h423.073L561.538-465.384 449.231-319.231l-80-102.306-99.229 131.536ZM200-200V-760-200Z" />
+						</svg>
+					</Button>
+					<input
+						type="file"
+						accept="image/jpeg, image/png, image/gif, image/webp"
+						ref={imageInputRef}
+						multiple
+						onChange={(e) => chooseImage(e.target.files)}
+						aria-label="Upload Image"
+					/>
+				</div>
 
-const Postbox = ({posts, setPosts}) => {
-
-  const {showError} = useErrorContext();
+				{
+					<Picker
+						message={message}
+						setMessage={setMessage}
+						msgBoxRef={messageInputRef}
+					/>
+				}
+										fill="currentColor"
+										xmlns="http://www.w3.org/2000/svg"
+										height="24"
+										viewBox="0 -960 960 960"
+										width="24"
+									>
+										<path d="m296-358.463-42.153-42.152L480-626.768l226.153 226.153L664-358.463l-184-184-184 184Z" />
+									</svg>
+								</Button>
+							</div>
+						</div>
+					) : (
+						<Suspense fallback={null}>
+							<Chat
+								chatRef={chatRef}
+								setIsExpanded={setIsChatExpanded}
+								isExpanded={isChatExpanded}
+							/>
+						</Suspense>
+					)}
+				</div>
+			)}
 
   const [message, setMessage] = useState({
     message: '',
