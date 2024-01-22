@@ -11,6 +11,74 @@ const ImageContainer = ({ user, image, type, onImageChange, fileUpload }) => {
 	const { showError } = useErrorContext();
 	const [croppedSrc, setCroppedSrc] = useState(null);
 	async function saveUpdate() {
+		const randomId = crypto.randomUUID();
+		const formData = new FormData();
+		formData.append("files", image);
+
+		const upload = async (formData, path) => {
+			const { data, error } = await fetchAction({
+				path,
+				options: {
+					method: "POST",
+					headers: {},
+					body: formData
+				}
+			});
+
+			if (error) {
+				if (error.code === 422 || error.code === 413) {
+					return showError("TOAST_ERROR", {
+						error: error.message,
+						files: error.files
+					});
+				}
+
+				return error.code === 401 ? showModal(401) : showError(error);
+			}
+
+			return data;
+		};
+
+		const response = await upload(
+			formData,
+			`upload?field=files&type=${type}&sizes=680&randomId=${randomId}`
+		);
+
+		if (response && response.success) {
+			formData.delete("files");
+			const file = new File([croppedSrc], image.name + "cropped", {
+				type: image.type
+			});
+			formData.append("file", file);
+			const response = await upload(
+				formData,
+				`upload?field=file&type=${type}&randomId=${randomId}&cropped=true`
+			);
+
+			if (response && response.success) {
+				const { data, error } = await fetchAction({
+					path: `users/${user.id}?type=${type}`,
+					options: {
+						method: "PUT",
+						body: JSON.stringify({
+							value: response.filename
+						})
+					}
+				});
+
+				if (error) {
+					return error.code === 401 ? showModal(401) : showError(error);
+				}
+
+				if (data && data.success) {
+					if (fileUpload) {
+						fileUpload.value = "";
+					}
+					onImageChange(data.filename);
+					hideModal();
+				}
+			}
+
 		const file = new File([croppedSrc], image.name, { type: image.type });
 
 		const formData = new FormData();
@@ -42,6 +110,7 @@ const ImageContainer = ({ user, image, type, onImageChange, fileUpload }) => {
 			}
 			onImageChange(data.filename);
 			hideModal();
+
 		}
 	}
 

@@ -73,8 +73,9 @@ async function unblockUser(req, res, next) {
 
 async function updateUser(req, res, next) {
 	const { id } = req.user;
-	const value = req.file ? req.file.filename : req.body;
-	const type = req.type;
+
+	const { type } = req.query;
+	const { value } = req.body;
 
 	const query = `update users set ${type} = ? where id = ?`;
 
@@ -94,12 +95,12 @@ async function updateUser(req, res, next) {
 					message: "Your profile picture has been updated!"
 				},
 				req.file,
-				(response) => {
+				() => {
 					res.status(200).json({ success: true, filename: value });
 				}
 			);
 		} else {
-			res.status(200).json({ success: true });
+			res.status(200).json({ success: true, filename: value });
 		}
 	} catch (error) {
 		console.log(error);

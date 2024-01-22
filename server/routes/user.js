@@ -11,22 +11,48 @@ import {
 import { getUserPosts } from "../controllers/postsController.js";
 import authValidation from "../middlewares/authValidation.js";
 import { ApiError } from "../errors/error.js";
+import { upload } from "../middlewares/uploadFile.js";
+import sharp from "sharp";
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		const type = req.query.type === "profile_img" ? "profile" : "cover";
-		req.type = type;
-		cb(null, `../social/uploads/${type}`);
-	},
-	filename: function (req, file, cb) {
-		const customFileName = crypto.randomUUID();
-		const fileExtension = file.originalname.split(".")[1];
-		cb(null, customFileName + "." + fileExtension);
+router.post("/upload", authValidation(true), async (req, res, next) => {
+	const { field, type, randomId } = req.query;
+	const sizes = req.query.sizes?.split(",");
+	const resizes = req.query.resize?.split(",");
+
+	try {
+		if (field === "files") {
+			upload.memory(req, res, next, function () {
+				for (const file of req.files) {
+					for (const size of sizes) {
+						sharp(file.buffer)
+							.resize({ width: parseInt(size) })
+							.toFile(
+								`../social/uploads/${type}/${
+									randomId || file.randomId
+								}-${size}.${file.ext}`
+							);
+					}
+				}
+
+				res.status(207).json({
+					success: true,
+					randomId
+				});
+			});
+		} else {
+			upload.disk(req, res, next, function () {
+				res.status(207).json({
+					success: true,
+					filename: randomId + "." + req.file.ext
+				});
+			});
+		}
+	} catch (error) {
+		next(error);
 	}
 });
-const upload = multer({ storage }).single("file");
 
 router.get("/users", async (req, res, next) => {
 	const { username, search } = req.query;
@@ -59,7 +85,7 @@ router
 	.route("/users/:userId")
 	.all(authValidation())
 	.get(getUserBy)
-	.put(upload, updateUser)
+	.put(updateUser)
 	.delete();
 
 router.get("/users/:userId/posts", authValidation(false), getUserPosts);

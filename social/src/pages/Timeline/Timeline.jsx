@@ -110,17 +110,17 @@ const Profile = ({user, timelineUser, setModal}) => {
   console.log(user)
   console.log('profile: ', timelineUser)
   
-const Profile = ({ user, timelineUser, isAuthenticated }) => {
-	const { showModal } = useGlobalModalContext();
-	const [cover, setCover] = useState(timelineUser.cover);
-	const [profileImg, setProfileImg] = useState(timelineUser.picture);
-	const picInputRef = useRef(null);
-	const coverInputRef = useRef(null);
+  const [cover, setCover] = useState(timelineUser.cover);
+  const [profileImg, setProfileImg] = useState(timelineUser.profile_img)
 
-	const sameUser = user && user.id === timelineUser.id;
+  const picInputRef = useRef(null);
+  const coverInputRef = useRef(null);
+  
+  const sameUser = (user && (user.id === timelineUser.id));
 
-	const createModal = (props) => {
-		showModal("CREATE_MODAL", {
+
+	const imageModal = (props) => {
+		showModal("IMAGE_MODAL", {
 			...props
 		});
 	};
@@ -158,15 +158,156 @@ const Profile = ({ user, timelineUser, isAuthenticated }) => {
 		});
 	}
 
+
+	const [id, ext] = cover.split(".");
+
+
 	return (
 		<section className="profile">
 			<div className="profile-container">
 				<div>
+
+					<div
+						className="profile__cover"
+						onClick={() =>
+							imageModal({
+								image: `/uploads/cover/${id + "-680" + "." + ext}`,
+								type: "cover"
+							})
+						}
+
 					<div className="profile__cover">
+
 						<div
 							className="cover"
 							style={{
 								backgroundImage: `url('/uploads/cover/${
+
+									id + "-cropped." + ext
+								}')`
+							}}
+						/>
+
+const Toolbar = ({user, timelineUser}) => {
+
+  const {showError} = useErrorContext();
+  const [invite,setInvite] = useState(null);
+
+  const sameUser = (user.id === timelineUser.id);  
+
+  useEffect(() => {
+    const fetchInvite = async () => {
+
+      const response = await fetchAction({
+        path: `friends/${timelineUser.id}/invites`,
+      });
+
+      console.log(response)
+      if(response.error && response.code) {
+        return showError(response.code);
+      }
+      
+      const data = response.data;
+
+      if(data) {
+        setInvite(data);
+      }      
+    };
+
+    fetchInvite();
+  }, []);
+
+  const inviteFriend = async () => {
+    const response = await fetchAction({
+      path: `friends/${timelineUser.id}/invites`,
+      options: {
+        method: 'POST',
+        body: JSON.stringify(timelineUser)
+      }
+    });
+
+    if(response.error && response.code) {
+      return showError(response.code);
+    }
+    
+    const data = response.data;
+
+    if(data.success) {
+      setInvite({status: 'pending'});
+    }
+       
+  }
+
+  const updateInvite = async (status) => {    
+      const response = await fetchAction({
+        path: `friends/${timelineUser.id}/invites/${invite.id}`,
+        options: {
+          method: 'PUT',
+          body: JSON.stringify({status: status, user: timelineUser})
+        }
+      });
+
+      if(response.error && response.code) {
+        return showError(response.code);
+      }
+      
+      const data = response.data;
+  
+      if(data && data.success) {
+        setInvite(status);
+      }
+  }
+
+  const cancelInvite = async () => { 
+      
+    const response = await fetchAction({
+      path: `friends/${timelineUser.id}/invites/${invite.id}`,
+      options: {
+        method: 'DELETE',
+        body: JSON.stringify(timelineUser)
+      }
+    });
+
+    if(response.error && response.code) {
+      return showError(response.code);
+    }
+    
+    const data = response.data;
+
+    if(data && data.success) {
+      setInvite(null);
+    }
+    
+  }
+
+  return (
+    <div className="toolbar">
+      {!sameUser && (
+        invite ? (
+          invite.status === 'pending' && (
+            invite.action_user_id === timelineUser.id ? (
+              <div>
+                <Button title="accept" onClick={() => updateInvite('accepted')} />
+                <Button title="reject" onClick={() => updateInvite('rejected')} />
+              </div> 
+            ) : (
+              <div>
+                <Button title="Cancel Invite" onClick={cancelInvite} />
+              </div>
+            )
+          )
+        ) : (
+          <div>
+            <Button title="Send Invite" onClick={inviteFriend} />
+          </div>
+        )
+      )}
+    </div>
+  )
+}
+
+
+export default Timeline
 									cover || "default.png"
 								}')`
 							}}

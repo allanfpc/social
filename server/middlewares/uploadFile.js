@@ -52,7 +52,9 @@ const uploadMemory = multer({
 	fileFilter
 }).array("files");
 
+
 async function uploadMemoryFile(req, res, next) {
+
 	const promise = new Promise((resolve, reject) => {
 		uploadMemory(req, res, function (err) {
 			if (err) {
@@ -64,7 +66,11 @@ async function uploadMemoryFile(req, res, next) {
 
 	try {
 		await promise;
-		next();
+		if (callback) {
+			callback();
+		} else {
+			next();
+		}
 	} catch (err) {
 		const error = await errorHandling(err);
 		next(error);
@@ -73,14 +79,16 @@ async function uploadMemoryFile(req, res, next) {
 
 const diskStorage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		const type = req.query.type;
+		const { type } = req.query;
 		req.type = type;
 		cb(null, `../social/uploads/${type}`);
 	},
 	filename: function (req, file, cb) {
-		const customFileName = crypto.randomUUID();
-		const fileExtension = file.originalname.split(".")[1];
-		cb(null, customFileName + "." + fileExtension);
+
+		const randomId = req.query.randomId || crypto.randomUUID();
+		const cropped = req.query.cropped ? "-cropped" : "";
+
+		cb(null, randomId + cropped + "." + file.ext);
 	}
 });
 
@@ -92,7 +100,9 @@ const uploadDisk = multer({
 	fileFilter
 }).single("file");
 
+
 async function uploadDiskFile(req, res, next) {
+
 	const promise = new Promise((resolve, reject) => {
 		uploadDisk(req, res, function (err) {
 			if (err) {
